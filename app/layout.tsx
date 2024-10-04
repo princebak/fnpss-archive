@@ -3,7 +3,7 @@ import "@/app/styles/custom.css";
 import "bootstrap/dist/css/bootstrap.min.css";
 
 export const metadata = {
-  title: "FMS - Home",
+  title: "FNPSS-FMS - Home",
   description: `Manage all your business or private files online`,
   authors: [
     {
@@ -36,7 +36,7 @@ export default function RootLayout({
           rel="stylesheet"
           href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css"
         />
-        <link rel="shortcut icon" href="/images/fsm_logo1.png" />
+        <link rel="shortcut icon" href="/images/fnpss2.jpg" />
       </head>
       <body>{children}</body>
     </html>

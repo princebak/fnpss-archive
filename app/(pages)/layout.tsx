@@ -20,7 +20,10 @@ const ProvidersLayout = ({
           <div className="container" style={{ height: "100vh" }}>
             <header className="row">
               <div className="container">
-                <div className="px-3 py-2 bg-dark text-white row">
+                <div
+                  className="px-3 py-2 text-white row"
+                  style={{ backgroundColor: "#0a58ca" }}
+                >
                   <div className="d-flex flex-wrap align-items-center justify-content-center justify-content-lg-start p-2">
                     <a
                       href="/"
@@ -44,7 +47,7 @@ const ProvidersLayout = ({
                         />
                       </div>
 
-                      <span>Fnpss Archive</span>
+                      <span>FNPSS Archives</span>
                     </a>
 
                     <ul className="nav col-12 col-lg-auto my-2 justify-content-center my-md-0 text-small">
