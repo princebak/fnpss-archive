@@ -1,17 +1,20 @@
 "use client";
 
-import { findById, updateFileInfo } from "@/services/MyFileService";
-import { fileStatus } from "@/utils/constants";
-import Link from "next/link";
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { findById, getFolders, updateFileInfo } from "@/services/MyFileService";
+import { fileRole } from "@/utils/constants";
+import React, { useEffect, useState } from "react";
+import { useSelector } from "react-redux";
+import FormSelect from "../../form/elements/FormSelect";
+import { getFileNameWithoutExtension } from "@/utils/myFunctions";
 
-const CreateFileForm = ({ id, closeModal, refreshData }: any) => {
+const CreateFileForm = ({ id, closeModal, refreshData, userFolderId }: any) => {
   const [file, setFile] = useState<File>();
   const [name, setName] = useState("");
+  const [parentFolder, setParentFolder] = useState(userFolderId);
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
-  // const [isEnterKeyPressed, setIsEnterKeyPressed] = useState(false);
-  let isEnterKeyPressed = false;
+  const [folders, setFolders] = useState<Array<IMyFile>>();
+  const { currentUser } = useSelector((state: any) => state.user);
 
   const closeModalAndReload = () => {
     closeModal();
@@ -19,13 +22,15 @@ const CreateFileForm = ({ id, closeModal, refreshData }: any) => {
   };
 
   const handleSubmit = async (e: any) => {
-    console.log("Sub");
     e.preventDefault();
     setIsLoading(true);
     if (file) {
       const formData = new FormData();
       formData.append("file", file);
       formData.append("name", name);
+      formData.append("parentFolder", parentFolder);
+      formData.append("userId", currentUser._id);
+      formData.append("fileRole", fileRole.SIMPLE_FILE);
 
       const uploadRes = await fetch("/api/uploadFile", {
         method: "POST",
@@ -42,7 +47,7 @@ const CreateFileForm = ({ id, closeModal, refreshData }: any) => {
     } else {
       if (id) {
         // Rename the file
-        const res = await updateFileInfo({ id: id, name: name });
+        const res = await updateFileInfo({ _id: id, name, parentFolder });
         if (res.error) {
           setMessage("Bad request.");
         } else {
@@ -59,47 +64,23 @@ const CreateFileForm = ({ id, closeModal, refreshData }: any) => {
     setIsLoading(false);
   };
 
-  const handleDelete = useCallback(
-    async (e: any) => {
-      e.preventDefault();
-      console.log("handleDelete  >> ", isEnterKeyPressed);
-      if (isEnterKeyPressed) {
-        // The pressed key is Enter
-        console.log("Enter key pressed!");
-        return;
-      } else {
-        setIsLoading(true);
-
-        /*  const res = await updateFileInfo({ id: id, status: fileStatus.REMOVED });
-      if (res.error) {
-        setMessage("Bad request.");
-      } else {
-        setMessage("File deleted sucessfully !!");
-        closeModalAndReload();
-      } */
-
-        setIsLoading(false);
-      }
-    },
-    [isEnterKeyPressed]
-  );
-
   useEffect(() => {
-    const loadFilInfo = async () => {
+    const loadFileInfo = async () => {
       if (id) {
         const fileInfo = await findById(id);
         if (fileInfo) {
           setName(fileInfo.name);
+          setParentFolder(fileInfo.parentFolder);
         }
       }
+      const myFolders = await getFolders(currentUser._id);
+      setFolders(myFolders);
     };
-    loadFilInfo();
+    loadFileInfo();
   }, []);
 
-  console.log();
-
   return (
-    <form onSubmit={(e) => e.preventDefault()}>
+    <form>
       {message ? <label>{message}</label> : ""}
 
       <div
@@ -116,24 +97,7 @@ const CreateFileForm = ({ id, closeModal, refreshData }: any) => {
             <label>Loading...</label>
           ) : (
             <div className="d-flex justify-content-between gap-2">
-              {id ? (
-                <button
-                  onKeyUp={(e) => {
-                    console.log("onKeyUp", e.code);
-                  }}
-                  onClick={(e) => handleDelete(e)}
-                  className="btn btn-danger"
-                >
-                  Delete
-                </button>
-              ) : (
-                <></>
-              )}
-              <button
-                onClick={handleSubmit}
-                type="submit"
-                className="btn btn-primary"
-              >
+              <button onClick={handleSubmit} className="btn btn-primary">
                 Save
               </button>
             </div>
@@ -161,14 +125,15 @@ const CreateFileForm = ({ id, closeModal, refreshData }: any) => {
             className="form-control"
             id="exampleFormControlInput1"
             placeholder="Rename the file here"
-            value={name}
+            value={getFileNameWithoutExtension(name)}
             onChange={(e) => setName(e.target.value)}
-            onKeyUp={(e) => {
-              e.preventDefault();
-              isEnterKeyPressed = true;
-              return;
-            }}
             required
+          />
+          <FormSelect
+            folders={folders}
+            parentFolder={parentFolder}
+            setParentFolder={setParentFolder}
+            userId={currentUser._id}
           />
         </div>
       </div>

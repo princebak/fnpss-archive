@@ -1,9 +1,9 @@
 "use client";
 
 import React, { useState } from "react";
-import CreateFileForm from "@/app/components/modal/forms/CreateFileForm";
+import CreateFolderForm from "./forms/CreateFolderForm";
 
-const UpdateFileModal = ({ id, refreshData, getFolders }: any) => {
+const UpdateFolderModal = ({ id, refreshData }: any) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleModal = (e: any) => {
@@ -35,11 +35,10 @@ const UpdateFileModal = ({ id, refreshData, getFolders }: any) => {
               style={{ boxShadow: "0 0 40px gray" }}
             >
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <CreateFileForm
+                <CreateFolderForm
                   id={id}
                   closeModal={() => setIsOpen(false)}
                   refreshData={refreshData}
-                  getFolders={getFolders}
                 />
               </div>
               <div className="bg-gray-50 px-4 py-3 sm:px-6 d-flex justify-content-end ">
@@ -59,4 +58,4 @@ const UpdateFileModal = ({ id, refreshData, getFolders }: any) => {
   );
 };
 
-export default UpdateFileModal;
+export default UpdateFolderModal;

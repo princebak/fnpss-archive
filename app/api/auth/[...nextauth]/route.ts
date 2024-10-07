@@ -2,8 +2,9 @@ import NextAuth from "next-auth/next";
 import { authenticate } from "@/services/UserService";
 
 import CredentialsProvider from "next-auth/providers/credentials";
+import { AuthOptions } from "next-auth";
 
-const handler = NextAuth({
+const authOptions: AuthOptions = {
   providers: [
     CredentialsProvider({
       id: "credentials",
@@ -20,11 +21,11 @@ const handler = NextAuth({
       },
 
       async authorize(credentials, req) {
-        if(!credentials?.email){
-          throw new Error("Email is required.")
+        if (!credentials?.email) {
+          throw new Error("Email is required.");
         }
-        if(!credentials?.password){
-          throw new Error("Password is required.")
+        if (!credentials?.password) {
+          throw new Error("Password is required.");
         }
         return await authenticate(credentials);
       },
@@ -53,7 +54,9 @@ const handler = NextAuth({
   jwt: {
     secret: "$2b$10$8KMPRzUEQ.7flfiT7FVf3.4AKnerb9BsblPqanw.M44nOReKoh6wu",
   },
-  secret: "*FmsApp@2023*",
-});
+  secret: "*FNPSSFmsApp@2023*",
+};
 
-export { handler as GET, handler as POST };
+const handler = NextAuth(authOptions);
+
+export { handler as GET, handler as POST, authOptions };

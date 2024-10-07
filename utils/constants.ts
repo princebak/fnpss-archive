@@ -30,6 +30,11 @@ type FileType = {
   FOLDER: string;
 };
 
+type FileRole = {
+  SIMPLE_FILE: string;
+  USER_PROFILE_PIC: string;
+};
+
 // Constants
 export const userTokenStatus: UserTokenStatus = {
   UNUSED: "unused",
@@ -55,6 +60,11 @@ export const fileStatus: FileStatus = {
 export const userType: UserType = {
   ADMIN: "admin",
   USER: "user",
+};
+
+export const fileRole: FileRole = {
+  SIMPLE_FILE: "simple file",
+  USER_PROFILE_PIC: "user profile picture",
 };
 
 export const TOKEN_VALIDITY = 30;

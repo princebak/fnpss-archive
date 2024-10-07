@@ -7,14 +7,24 @@ const Schema = mongoose.Schema;
 
 const myFileSchema = new Schema<IMyFile>(
   {
-    constainer: {
+    owner: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+    },
+    parentFolder: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "MyFile",
     },
     type: {
       type: String,
     },
-    isContainer: {
+    scheduledDate: {
+      type: Date,
+    },
+    alertDates: {
+      type: Array<FileAlert>,
+    },
+    isFolder: {
       type: Boolean,
       default: false,
     },
@@ -24,9 +34,11 @@ const myFileSchema = new Schema<IMyFile>(
     },
     size: {
       type: Number,
+      default: 0,
     },
-    contentNo: {
+    numberOfContent: {
       type: Number,
+      default: 0,
     },
     downloadUrl: {
       type: String,
@@ -36,6 +48,7 @@ const myFileSchema = new Schema<IMyFile>(
     },
     visited: {
       type: Date,
+      default: null,
     },
     status: {
       type: String,

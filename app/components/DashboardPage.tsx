@@ -13,6 +13,12 @@ import {
   getLastVisitedTimeInterval,
 } from "@/utils/myFunctions";
 import DownloadButton from "@/app/components/DownloadButton";
+import { useSelector } from "react-redux";
+import React from "react";
+import UpdateFolderModal from "./modal/UpdateFolderModal";
+import { fileStatus } from "@/utils/constants";
+import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 export default function DashboardPage({
   getAllFiles,
@@ -21,6 +27,7 @@ export default function DashboardPage({
 }: any) {
   const [myFiles, setMyFiles] = useState<any>([]);
   const [recentFiles, setRecentFiles] = useState<any>([]);
+  const { currentUser } = useSelector((state: any) => state.user);
 
   // Pagination and Search
   const [page, setPage] = useState<any>(1);
@@ -32,6 +39,7 @@ export default function DashboardPage({
   const [totalPages, setTotalPages] = useState<any>(0);
   const [refreshTime, setRefreshTime] = useState<any>(null);
   const [pages, setPages] = useState([1]);
+  const [userFolderId, setUserFolderId] = useState(currentUser?._id);
 
   useEffect(() => {
     const navbar: any = document.getElementById("stickyNavbar");
@@ -62,15 +70,26 @@ export default function DashboardPage({
     setPage(currentPage);
   };
 
-  const updateLastVisitedTime = async (id: string) => {
-    await updateFileInfo({ id, visited: new Date() });
+  const handleDelete = async (id: string, name: string) => {
+    const confirmDelete = confirm(
+      "Do you realy want to delete this item : " + name
+    );
+    if (confirmDelete) {
+      const res = await updateFileInfo({ _id: id, status: fileStatus.REMOVED });
+      if (res.error) {
+        alert("Bad request.");
+      } else {
+        alert("File deleted sucessfully !!");
+      }
+    }
+
     setRefreshTime(new Date());
   };
 
   useEffect(() => {
     let totPages = 0;
     const loadProductList = async () => {
-      const res = await getAllFiles("", page, search); // currentUser?._id, page, search //
+      const res = await getAllFiles(userFolderId, page, search);
       setMyFiles(res?.content);
       setPageLimit(res?.pageLimit);
       setTotalElements(res?.totalElements);
@@ -96,11 +115,11 @@ export default function DashboardPage({
     };
 
     loadData();
-  }, [page, search, refreshTime]);
+  }, [page, search, refreshTime, userFolderId]);
 
   useEffect(() => {
     const loadRecentFiles = async () => {
-      const res = await getRecentFiles(""); // currentUser?._id
+      const res = await getRecentFiles(currentUser?._id);
       setRecentFiles(res);
       setIsLoadingRecent(false);
     };
@@ -116,6 +135,29 @@ export default function DashboardPage({
     }, 3000);
   };
 
+  async function openSubFolder(e: any, id?: string, isFolder?: boolean) {
+    e.preventDefault();
+    await updateFileInfo({ _id: id, visited: new Date() });
+
+    if (isFolder) {
+      setUserFolderId(id);
+    } else {
+      await openFileLink(e, id!, false);
+    }
+    setRefreshTime(new Date());
+  }
+
+  async function openFileLink(e: any, id: string, isFolder: boolean) {
+    e.preventDefault();
+    if (!isFolder) {
+      await updateFileInfo({ _id: id, visited: new Date() });
+
+      window.open(`/api/downloadFile/${id}`, "_blank");
+
+      setRefreshTime(new Date());
+    }
+  }
+
   return (
     <div>
       <div
@@ -130,13 +172,17 @@ export default function DashboardPage({
           style={{ minWidth: "300px", maxWidth: "600px" }}
         />
 
-        <CreateFileModal refreshData={() => setRefreshTime(new Date())} />
+        <CreateFileModal
+          refreshData={() => setRefreshTime(new Date())}
+          userFolderId={userFolderId}
+        />
       </div>
 
       <div className="d-flex flex-wrap">
         <h5 className="font-size-16 me-3 mb-0" id="all">
           My Folders and Files
         </h5>
+
         <div className="ms-auto">
           <a href="#recents" className="fw-medium text-reset">
             <span
@@ -149,6 +195,17 @@ export default function DashboardPage({
         </div>
       </div>
 
+      <h6 className="mt-4">
+        <Link
+          href={"#"}
+          onClick={(e) => {
+            openSubFolder(e, currentUser._id, true);
+          }}
+        >
+          {"root >"}
+        </Link>
+      </h6>
+
       {/* My Files and Folders */}
 
       {isLoading ? (
@@ -156,41 +213,51 @@ export default function DashboardPage({
           <Loader />
         </div>
       ) : myFiles?.length > 0 ? (
-        <>
+        <React.Fragment>
           <div className="row mt-4">
-            {myFiles?.map((file: any, index: number) => (
-              <div key={index} className="col-lg-3 col-sm-6">
+            {myFiles?.map((file: IMyFile) => (
+              <div
+                key={file._id}
+                className="col-lg-3 col-sm-6"
+                onDoubleClick={(e) => openSubFolder(e, file._id, file.isFolder)}
+              >
                 <div className="card shadow-none border">
                   <div className="card-body p-3">
                     <div className="d-flex flex-column gap-1">
                       <div className="d-flex justify-content-between align-items-center">
                         <a
-                          href={`/api/downloadFile/${file._id}`}
-                          target="_blank"
+                          href="#"
                           style={{
                             width: "50px",
                             height: "50px",
                             cursor: "pointer",
                           }}
-                          onClick={() => updateLastVisitedTime(file._id)}
+                          onClick={(e) =>
+                            openFileLink(e, file._id!, file.isFolder!)
+                          }
                         >
-                          {file.isContainer ? (
+                          {file.isFolder ? (
                             <i className="bx bxs-folder h1 mb-0 text-warning"></i>
                           ) : (
                             <Image
                               width={100}
                               height={100}
-                              src={getFileExtensionLogoPath(file.extension)}
+                              src={getFileExtensionLogoPath(file.extension!)}
                               alt="Logo"
                             />
                           )}
                         </a>
 
                         <div className="avatar-group">
-                          <DownloadButton
-                            fileName={file.name}
-                            downloadLink={`/api/downloadFile/${file._id}`}
-                          />
+                          {!file.isFolder ? (
+                            <DownloadButton
+                              fileName={file.name!}
+                              downloadLink={`/api/downloadFile/${file._id}`}
+                            />
+                          ) : (
+                            ""
+                          )}
+
                           {/* sharing files users */}
                           {/* <div className="avatar-group-item">
                                       <a href="#" className="d-inline-block">
@@ -228,10 +295,11 @@ export default function DashboardPage({
                       <div className="d-flex flex-column gap-1">
                         <h5 className="font-size-15 text-truncate">
                           <a
-                            href={`/api/downloadFile/${file._id}`}
-                            target="_blank"
+                            href="#"
                             className="text-body"
-                            onClick={() => updateLastVisitedTime(file._id)}
+                            onClick={(e) =>
+                              openFileLink(e, file._id!, file.isFolder!)
+                            }
                           >
                             {file.name}
                           </a>
@@ -239,10 +307,12 @@ export default function DashboardPage({
                         <div className="d-flex flex-column gap-1">
                           <div className="d-flex justify-content-between">
                             <label className="text-muted text-truncate">
-                              File
+                              {file.isFolder
+                                ? file.numberOfContent + " items"
+                                : ""}
                             </label>
                             <label className="text-muted text-truncate">
-                              {Math.round(file.size / 1000)}
+                              {Math.round(file.size! / 1000)}
                               {" KB"}
                             </label>
                           </div>
@@ -250,12 +320,51 @@ export default function DashboardPage({
                             <label className="text-muted text-truncate">
                               {getLastVisitedTimeInterval(file.visited)}
                             </label>
-                            <label className="text-muted text-truncate">
-                              <UpdateFileModal
-                                id={file._id}
-                                refreshData={() => setRefreshTime(new Date())}
+
+                            <div className="d-flex gap-2">
+                              <Image
+                                width={20}
+                                height={20}
+                                src={"/images/forward-arrow.png"}
+                                alt="Delete"
+                                onClick={(e) =>
+                                  openSubFolder(e, file._id, file.isFolder)
+                                }
+                                style={{ cursor: "pointer" }}
                               />
-                            </label>
+                              {!file.isFolder || file.numberOfContent == 0 ? (
+                                <Image
+                                  width={20}
+                                  height={20}
+                                  src={"/images/delete.png"}
+                                  alt="Delete"
+                                  onClick={() =>
+                                    handleDelete(file._id!, file.name!)
+                                  }
+                                  style={{ cursor: "pointer" }}
+                                />
+                              ) : (
+                                ""
+                              )}
+
+                              <div className="text-muted">
+                                {file.isFolder ? (
+                                  <UpdateFolderModal
+                                    id={file._id}
+                                    refreshData={() =>
+                                      setRefreshTime(new Date())
+                                    }
+                                  />
+                                ) : (
+                                  <UpdateFileModal
+                                    id={file._id}
+                                    refreshData={() =>
+                                      setRefreshTime(new Date())
+                                    }
+                                  />
+                                )}
+                              </div>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -308,7 +417,7 @@ export default function DashboardPage({
               </ul>
             </nav>
           </div>
-        </>
+        </React.Fragment>
       ) : (
         <NoData />
       )}
@@ -362,10 +471,17 @@ export default function DashboardPage({
                     </div>
                   </td>
                   <td>
-                    <UpdateFileModal
-                      id={file._id}
-                      refreshData={() => setRefreshTime(new Date())}
-                    />
+                    {file.isFolder ? (
+                      <UpdateFolderModal
+                        id={file._id}
+                        refreshData={() => setRefreshTime(new Date())}
+                      />
+                    ) : (
+                      <UpdateFileModal
+                        id={file._id}
+                        refreshData={() => setRefreshTime(new Date())}
+                      />
+                    )}
                   </td>
                 </tr>
               ))}

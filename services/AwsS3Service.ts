@@ -4,8 +4,8 @@ import { S3Client, PutObjectCommand } from "@aws-sdk/client-s3";
 import { GetObjectCommand } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 
-const AWS_ACCESS_KEY_ID = "AKIA5V6I7K5GBOUDTHEN";
-const AWS_SECRET_ACCESS_KEY = "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";
+const AWS_ACCESS_KEY_ID = "AKIA5V6I7K5GD2QCDBRX"; // "AKIA5V6I7K5GD5OXERZW";
+const AWS_SECRET_ACCESS_KEY = "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"; // "PzKtCphPYoNAiLNE0/R3NkSz/ROZFZ8/QDRpziFq";
 const AWS_REGION = "us-east-1";
 const AMAZON_S3_BUCKET_NAME = "fsmstorage";
 

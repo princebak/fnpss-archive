@@ -1,12 +1,23 @@
+import { dbConnector } from "./dbConnector";
+import User from "@/models/User";
+
 import { FileExtensionLogo, PAGE_LIMIT, TOKEN_VALIDITY } from "./constants";
 import { FieldValidationResult } from "@/classes";
-import User from "@/models/User";
-import { dbConnector } from "./dbConnector";
 
 export function getFileExtension(filename: string) {
   const match = filename.match(/\.([^./]+)$/);
 
   return match ? match[1] : null;
+}
+
+export function getFileNameWithoutExtension(filename: string) {
+  const match = filename.match(/\.([^./]+)$/);
+  const extension = match ? match[1] : null;
+  if (extension) {
+    const name = filename.slice(0, filename.length - (extension.length + 1 ));
+    return name;
+  }
+  return filename;
 }
 
 export function dbObjectToJsObject(dbObject: any) {
@@ -97,7 +108,7 @@ export const getLastVisitedTimeInterval = (
   lastVisitedDateTime: Date | undefined | null
 ) => {
   if (!lastVisitedDateTime) {
-    return "Not yet read";
+    return "Not yet opened";
   }
   const currentDateTime = new Date();
   const lastVisitedDateTimeGood = new Date(lastVisitedDateTime);

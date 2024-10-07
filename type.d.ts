@@ -1,14 +1,23 @@
 interface IMyFile {
-  constainer: string?;
-  isContainer: boolean;
-  name: string;
-  type: string?;
-  downloadUrl: string?;
-  extension: string?;
-  size: number;
-  contentNo: number;
-  visited: Date;
-  status: string?;
+  _id?: string;
+  owner?: any;
+  parentFolder?: string?;
+  isFolder?: boolean;
+  name?: string;
+  type?: string;
+  downloadUrl?: string?;
+  extension?: string?;
+  size?: number;
+  numberOfContent?: number;
+  visited?: Date?;
+  status?: string;
+  scheduledDate?: Date;
+  alertDates?: Array<FileAlert>;
+}
+
+interface FileAlert {
+  date: Date;
+  reason: String;
 }
 
 interface S3File {

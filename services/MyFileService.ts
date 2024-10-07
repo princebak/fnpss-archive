@@ -14,6 +14,16 @@ export async function saveFileInfo(myFile: IMyFile) {
     await dbConnector();
 
     const myFileModel = new MyFile(myFile);
+    console.log("myFileModel >> ", myFileModel);
+    const existingFolder = await MyFile.findById(myFile.parentFolder);
+
+    if (existingFolder) {
+      await MyFile.findByIdAndUpdate(myFile.parentFolder, {
+        numberOfContent: existingFolder.numberOfContent + 1,
+        size: existingFolder.size + myFile.size,
+      });
+    }
+
     const savedFileInfo = await myFileModel.save();
     return { message: "File info saved", id: savedFileInfo._id.toString() };
   } catch (error: any) {
@@ -21,12 +31,28 @@ export async function saveFileInfo(myFile: IMyFile) {
   }
 }
 
-// even for Delete and change last visited Date
-export async function updateFileInfo(myFile: any) {
+export async function getFolders(userId: string) {
   try {
     await dbConnector();
 
-    const myFileModel = await MyFile.findByIdAndUpdate(myFile.id, myFile, {
+    const userFolders = await MyFile.find({
+      owner: userId,
+      isFolder: true,
+      status: { $ne: fileStatus.REMOVED },
+    });
+
+    return dbObjectToJsObject(userFolders);
+  } catch (error: any) {
+    return { error: error.message };
+  }
+}
+
+// even for Delete and change last visited Date
+export async function updateFileInfo(myFile: IMyFile) {
+  try {
+    await dbConnector();
+
+    const myFileModel = await MyFile.findByIdAndUpdate(myFile._id, myFile, {
       new: true,
     });
     return { message: "File info updated", data: myFileModel };
@@ -36,13 +62,16 @@ export async function updateFileInfo(myFile: any) {
 }
 
 export async function getAllFiles(
-  userId: string,
+  userFolderId: string,
   page: string,
   search: string
 ) {
   await dbConnector();
 
-  const files = await MyFile.find({ status: { $ne: fileStatus.REMOVED } });
+  const files = await MyFile.find({
+    parentFolder: userFolderId,
+    status: { $ne: fileStatus.REMOVED },
+  });
 
   const filesPerPage = getContentWithPagination(files, page, search);
 
@@ -53,14 +82,21 @@ export async function getRecentFiles(userId: string) {
   await dbConnector();
 
   const files = await MyFile.find({
+    owner: userId,
+    isFolder: false,
     status: { $ne: fileStatus.REMOVED },
     visited: { $ne: null },
   });
-  // Sorting
+
+  // Desc Sorting
+  let visitedA = null;
+  let visitedB = null;
+
   files.sort((a, b) => {
-    const dateA = new Date(a.visited);
-    const dateB = new Date(b.visited);
-    return dateB.getTime() - dateA.getTime();
+    visitedA = a.visited ? a.visited : new Date("01/01/1990");
+    visitedB = b.visited ? b.visited : new Date("01/01/1990");
+
+    return visitedB.getTime() - visitedA.getTime();
   });
 
   const first8Files = files.slice(0, 8);

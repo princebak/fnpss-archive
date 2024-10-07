@@ -9,7 +9,7 @@ import { subscriptionStatus } from "@/utils/constants";
 import SubscribButton from "../SubscribButton";
 import Image from "next/image";
 
-const CreateFileModal = ({ refreshData }: any) => {
+const CreateFileModal = ({ refreshData, userFolderId }: any) => {
   const [isOpen, setIsOpen] = useState(false);
   const { currentSubscription } = useSelector(
     (state: any) => state.subscription
@@ -24,7 +24,7 @@ const CreateFileModal = ({ refreshData }: any) => {
             setIsOpen(false);
           }}
           refreshData={refreshData}
-          id={null}
+          userFolderId={userFolderId}
         />
       ),
     },
@@ -35,6 +35,8 @@ const CreateFileModal = ({ refreshData }: any) => {
           closeModal={() => {
             setIsOpen(false);
           }}
+          userFolderId={userFolderId}
+          refreshData={refreshData}
         />
       ),
     },
