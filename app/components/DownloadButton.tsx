@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import Image from "next/image";
 import React, { useState } from "react";
@@ -43,12 +43,13 @@ const DownloadButton = ({
         <Loader />
       ) : (
         <Image
-          width={30}
-          height={30}
+          width={24}
+          height={24}
           src="/images/download.png"
           alt="Download"
           style={{ cursor: "pointer" }}
           onClick={handleClick}
+          className="align-self-center"
         />
       )}
     </>

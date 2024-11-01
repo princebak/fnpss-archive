@@ -4,16 +4,10 @@ import React, { useState } from "react";
 import CreateFileForm from "@/app/components/modal/forms/CreateFileForm";
 import CreateFolderForm from "@/app/components/modal/forms/CreateFolderForm";
 import Accordion from "@/app/components/accordion/Accordion";
-import { useSelector } from "react-redux";
-import { subscriptionStatus } from "@/utils/constants";
-import SubscribButton from "../SubscribButton";
 import Image from "next/image";
 
 const CreateFileModal = ({ refreshData, userFolderId }: any) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { currentSubscription } = useSelector(
-    (state: any) => state.subscription
-  );
 
   const accordionItems = [
     {
@@ -49,17 +43,13 @@ const CreateFileModal = ({ refreshData, userFolderId }: any) => {
 
   return (
     <>
-      {currentSubscription?.status === subscriptionStatus.ACTIVE ? (
-        <button className="btn btn-primary d-flex gap-1" onClick={toggleModal}>
-          <div style={{ width: "25px", cursor: "pointer" }}>
-            <Image src="/images/add.png" width={100} height={100} alt="add" />
-          </div>
+      <button className="btn btn-primary d-flex gap-1" onClick={toggleModal}>
+        <div style={{ width: "25px", cursor: "pointer" }}>
+          <Image src="/images/add.png" width={100} height={100} alt="add" />
+        </div>
 
-          <label style={{ cursor: "pointer" }}>Create new</label>
-        </button>
-      ) : (
-        <SubscribButton />
-      )}
+        <label style={{ cursor: "pointer" }}>Create new</label>
+      </button>
 
       {isOpen && (
         <div className="fixed z-10 inset-0 overflow-y-auto">

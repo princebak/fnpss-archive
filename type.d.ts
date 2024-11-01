@@ -4,6 +4,7 @@ interface IMyFile {
   parentFolder?: string?;
   isFolder?: boolean;
   name?: string;
+  originalName?: string;
   type?: string;
   downloadUrl?: string?;
   extension?: string?;
@@ -11,8 +12,10 @@ interface IMyFile {
   numberOfContent?: number;
   visited?: Date?;
   status?: string;
-  scheduledDate?: Date;
-  alertDates?: Array<FileAlert>;
+  scheduledDate: Date?;
+  alertDate: Date?;
+  alertReason?: string?;
+  sharedWithUsers?: string[];
 }
 
 interface FileAlert {

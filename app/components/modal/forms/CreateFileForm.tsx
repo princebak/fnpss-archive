@@ -6,13 +6,21 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import FormSelect from "../../form/elements/FormSelect";
 import { getFileNameWithoutExtension } from "@/utils/myFunctions";
+import FileEditAlert from "../../form/elements/FileEditAlert";
 
 const CreateFileForm = ({ id, closeModal, refreshData, userFolderId }: any) => {
   const [file, setFile] = useState<File>();
   const [name, setName] = useState("");
+  const [alertDate, setAlertDate] = useState<Date | null>(null);
+  const [alertReason, setAlertReason] = useState<string>("");
+  const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
+
   const [parentFolder, setParentFolder] = useState(userFolderId);
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<{
+    content: string;
+    colorClass?: string;
+  }>({ content: "", colorClass: "danger" });
   const [folders, setFolders] = useState<Array<IMyFile>>();
   const { currentUser } = useSelector((state: any) => state.user);
 
@@ -23,69 +31,145 @@ const CreateFileForm = ({ id, closeModal, refreshData, userFolderId }: any) => {
 
   const handleSubmit = async (e: any) => {
     e.preventDefault();
-    setIsLoading(true);
-    if (file) {
-      const formData = new FormData();
-      formData.append("file", file);
-      formData.append("name", name);
-      formData.append("parentFolder", parentFolder);
-      formData.append("userId", currentUser._id);
-      formData.append("fileRole", fileRole.SIMPLE_FILE);
 
-      const uploadRes = await fetch("/api/uploadFile", {
-        method: "POST",
-        body: formData,
-      });
+    if (name) {
+      setIsLoading(true);
+      if (file) {
+        const formData = new FormData();
+        formData.append("file", file);
+        formData.append("name", name);
 
-      const data = await uploadRes.json();
-      if (data.error) {
-        setMessage(data.error);
-      } else {
-        setMessage("File uploaded successfully !");
-        closeModalAndReload();
-      }
-    } else {
-      if (id) {
-        // Rename the file
-        const res = await updateFileInfo({ _id: id, name, parentFolder });
-        if (res.error) {
-          setMessage("Bad request.");
+        if (alertDate && scheduledDate && alertReason) {
+          if (new Date(alertDate) > new Date(scheduledDate)) {
+            setMessage({
+              ...message,
+              content:
+                "The alert date can't be after the scheduled date, please to correct it.",
+            });
+            setIsLoading(false);
+            return;
+          } else {
+            formData.append("scheduledDate", scheduledDate + "");
+            formData.append("alertDate", alertDate + "");
+            formData.append("alertReason", alertReason);
+            formData.append("isOnAlert", "true");
+          }
         } else {
-          setMessage("File renamed with success !!");
+          formData.append("isOnAlert", "false");
+        }
+
+        formData.append("parentFolder", parentFolder);
+        formData.append("userId", currentUser._id);
+        formData.append("fileRole", fileRole.SIMPLE_FILE);
+        const uploadRes = await fetch("/api/uploadFile", {
+          method: "POST",
+          body: formData,
+        });
+
+        const data = await uploadRes.json();
+        if (data.error) {
+          setMessage({ ...message, content: data.error });
+          setIsLoading(false);
+        } else {
+          setMessage({
+            content: "File uploaded successfully !",
+            colorClass: "success",
+          });
           closeModalAndReload();
         }
       } else {
-        setTimeout(() => {
-          setMessage("File don't exist !");
-        });
+        if (id) {
+          if (
+            alertDate &&
+            scheduledDate &&
+            new Date(alertDate) > new Date(scheduledDate)
+          ) {
+            setMessage({
+              ...message,
+              content:
+                "The alert date can't be after the scheduled date, please to correct it.",
+            });
+          } else if (alertDate && !alertReason) {
+            setMessage({
+              ...message,
+              content: "The alert reason is mandatory.",
+            });
+            setIsLoading(false);
+            return;
+          } else {
+            // Update the file
+            const res = await updateFileInfo(
+              {
+                _id: id,
+                name,
+                parentFolder,
+                alertDate,
+                scheduledDate,
+                alertReason,
+              },
+              true
+            );
+            if (res.error) {
+              setMessage({ ...message, content: "Bad request." });
+            } else {
+              setMessage({
+                content: "File renamed with success !!",
+                colorClass: "success",
+              });
+              closeModalAndReload();
+            }
+          }
+        } else {
+          setMessage({ ...message, content: "Please to upload a file !" });
+        }
       }
-    }
 
-    setIsLoading(false);
+      setIsLoading(false);
+    } else {
+      setMessage({ ...message, content: "A file should have a display name." });
+    }
   };
 
   useEffect(() => {
     const loadFileInfo = async () => {
       if (id) {
-        const fileInfo = await findById(id);
+        const fileInfo: IMyFile = await findById(id);
         if (fileInfo) {
-          setName(fileInfo.name);
-          setParentFolder(fileInfo.parentFolder);
+          setName(fileInfo.name!);
+          const parentFolderId = fileInfo.parentFolder
+            ? fileInfo.parentFolder
+            : fileInfo.owner;
+          setParentFolder(parentFolderId);
+          setAlertDate(fileInfo.alertDate ? fileInfo.alertDate! : null);
+          setScheduledDate(
+            fileInfo.scheduledDate ? fileInfo.scheduledDate! : null
+          );
+          setAlertReason(fileInfo.alertReason!);
         }
       }
       const myFolders = await getFolders(currentUser._id);
       setFolders(myFolders);
     };
+
     loadFileInfo();
   }, []);
 
   return (
     <form>
-      {message ? <label>{message}</label> : ""}
+      {message.content ? (
+        <label className={`alert alert-${message.colorClass}`}>
+          {message.content}
+        </label>
+      ) : (
+        ""
+      )}
 
       <div
         className="bd-example d-flex flex-column gap-2"
-        style={{ border: "solid 1px #ddd", borderRadius: "5px" }}
+        style={{
+          border: "solid 1px #ddd",
+          borderRadius: "5px",
+        }}
       >
         <div
           className="d-flex justify-between flex-wrap p-2"
@@ -115,7 +199,7 @@ const CreateFileForm = ({ id, closeModal, refreshData, userFolderId }: any) => {
               onKeyDown={(e) => e.preventDefault()}
               onChange={(e: any) => {
                 setFile(e.target.files[0]);
-                setName(e.target.files[0].name);
+                setName(getFileNameWithoutExtension(e.target.files[0].name));
               }}
             />
           )}
@@ -125,8 +209,10 @@ const CreateFileForm = ({ id, closeModal, refreshData, userFolderId }: any) => {
             className="form-control"
             id="exampleFormControlInput1"
             placeholder="Rename the file here"
-            value={getFileNameWithoutExtension(name)}
-            onChange={(e) => setName(e.target.value)}
+            value={name}
+            onChange={(e) =>
+              setName(getFileNameWithoutExtension(e.target.value))
+            }
             required
           />
           <FormSelect
@@ -134,6 +220,16 @@ const CreateFileForm = ({ id, closeModal, refreshData, userFolderId }: any) => {
             parentFolder={parentFolder}
             setParentFolder={setParentFolder}
             userId={currentUser._id}
+          />
+
+          <FileEditAlert
+            id={"fileIsOnAlert"}
+            alertDate={alertDate}
+            scheduledDate={scheduledDate}
+            setAlertDate={(value: Date) => setAlertDate(value)}
+            setScheduledDate={(value: Date) => setScheduledDate(value)}
+            alertReason={alertReason}
+            setAlertReason={(value: string) => setAlertReason(value)}
           />
         </div>
       </div>

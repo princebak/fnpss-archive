@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useRef, useState } from "react";
 import styles from "@/app/styles/Accordion.module.css";
@@ -33,7 +33,7 @@ const AccordionItem = ({ name, content, isOpen, onClick }: any) => {
         className={`${styles.answer_container} flex-column `}
         style={
           isOpen
-            ? { height: contentHeight.current.scrollHeight + 10 }
+            ? { height: "fit-content" } //contentHeight.current.scrollHeight + 10
             : { height: "0px" }
         }
       >

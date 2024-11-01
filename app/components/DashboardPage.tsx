@@ -7,38 +7,44 @@ import { useEffect, useState } from "react";
 import NoData from "@/app/components/NoData";
 import Loader from "@/app/components/Loader";
 import UpdateFileModal from "@/app/components/modal/UpdateFileModal";
-import {
-  getFileExtensionLogoPath,
-  getFormatedDate,
-  getLastVisitedTimeInterval,
-} from "@/utils/myFunctions";
+import { getFormatedDate } from "@/utils/myFunctions";
 import DownloadButton from "@/app/components/DownloadButton";
 import { useSelector } from "react-redux";
 import React from "react";
 import UpdateFolderModal from "./modal/UpdateFolderModal";
 import { fileStatus } from "@/utils/constants";
-import { useRouter } from "next/navigation";
-import Link from "next/link";
+import { getAllSharedFiles } from "@/services/MyFileService";
+import FilesList from "./FilesList";
 
 export default function DashboardPage({
   getAllFiles,
   getRecentFiles,
   updateFileInfo,
+  getAllUrgentFiles,
 }: any) {
   const [myFiles, setMyFiles] = useState<any>([]);
+  const [myUrgentFiles, setMyUrgentFiles] = useState<any>([]);
   const [recentFiles, setRecentFiles] = useState<any>([]);
+  const [sharedFiles, setSharedFiles] = useState<any>([]);
   const { currentUser } = useSelector((state: any) => state.user);
+  
 
   // Pagination and Search
   const [page, setPage] = useState<any>(1);
+  const [urgentPage, setUrgentPage] = useState<any>(1);
+  const [sharedPage, setSharedPage] = useState<any>(1);
   const [search, setSearch] = useState<any>("");
   const [isLoading, setIsLoading] = useState(true);
-  const [isLoadingRecent, setIsLoadingRecent] = useState(true);
+  const [isRecentLoading, setIsRecentLoading] = useState(true);
+  const [isUrgentLoading, setIsUrgentLoading] = useState(true);
+  const [isSharedLoading, setIsSharedLoading] = useState(true);
   const [totalElements, setTotalElements] = useState<any>(0);
-  const [pageLimit, setPageLimit] = useState<any>();
-  const [totalPages, setTotalPages] = useState<any>(0);
+  const [totalUrgentElements, setTotalUrgentElements] = useState<any>(0);
+  const [totalSharedElements, setTotalSharedElements] = useState<any>(0);
   const [refreshTime, setRefreshTime] = useState<any>(null);
   const [pages, setPages] = useState([1]);
+  const [urgentPages, setUrgentPages] = useState([1]);
+  const [sharedPages, setSharedPages] = useState([1]);
   const [userFolderId, setUserFolderId] = useState(currentUser?._id);
 
   useEffect(() => {
@@ -70,6 +76,16 @@ export default function DashboardPage({
     setPage(currentPage);
   };
 
+  const handleUrgentPageChange = (e: any, currentPage: number) => {
+    e.preventDefault();
+    setUrgentPage(currentPage);
+  };
+
+  const handleSharedPageChange = (e: any, currentPage: number) => {
+    e.preventDefault();
+    setSharedPage(currentPage);
+  };
+
   const handleDelete = async (id: string, name: string) => {
     const confirmDelete = confirm(
       "Do you realy want to delete this item : " + name
@@ -86,15 +102,16 @@ export default function DashboardPage({
     setRefreshTime(new Date());
   };
 
+  {
+    /* All files side effects */
+  }
   useEffect(() => {
     let totPages = 0;
-    const loadProductList = async () => {
+    const loadFilesList = async () => {
       const res = await getAllFiles(userFolderId, page, search);
       setMyFiles(res?.content);
-      setPageLimit(res?.pageLimit);
       setTotalElements(res?.totalElements);
       setPage(res?.currentPage);
-      setTotalPages(res?.totalPages);
       totPages = res?.totalPages;
 
       return true;
@@ -103,7 +120,7 @@ export default function DashboardPage({
     const loadData = async () => {
       setIsLoading(true);
 
-      const res = await loadProductList();
+      const res = await loadFilesList();
       if (res) {
         let myPagesNo = [];
         for (let index = 1; index <= totPages; index++) {
@@ -117,11 +134,75 @@ export default function DashboardPage({
     loadData();
   }, [page, search, refreshTime, userFolderId]);
 
+  {
+    /* Urgent files side effects */
+  }
+  useEffect(() => {
+    let totPages = 0;
+    const loadFilesList = async () => {
+      const res = await getAllUrgentFiles(currentUser?._id, urgentPage);
+      setMyUrgentFiles(res?.content);
+      setTotalUrgentElements(res?.totalElements);
+      setUrgentPage(res?.currentPage);
+      totPages = res?.totalPages;
+
+      return true;
+    };
+
+    const loadData = async () => {
+      setIsUrgentLoading(true);
+
+      const res = await loadFilesList();
+      if (res) {
+        let myPagesNo = [];
+        for (let index = 1; index <= totPages; index++) {
+          myPagesNo.push(index);
+        }
+        setUrgentPages([...myPagesNo]);
+      }
+      setIsUrgentLoading(false);
+    };
+
+    loadData();
+  }, [urgentPage, refreshTime]);
+
+  {
+    /* Shared files side effects */
+  }
+  useEffect(() => {
+    let totPages = 0;
+    const loadFilesList = async () => {
+      const res = await getAllSharedFiles(currentUser?._id, sharedPage);
+      setSharedFiles(res?.content);
+      setTotalSharedElements(res?.totalElements);
+      setSharedPage(res?.currentPage);
+      totPages = res?.totalPages;
+
+      return true;
+    };
+
+    const loadData = async () => {
+      setIsSharedLoading(true);
+
+      const res = await loadFilesList();
+      if (res) {
+        let myPagesNo = [];
+        for (let index = 1; index <= totPages; index++) {
+          myPagesNo.push(index);
+        }
+        setSharedPages([...myPagesNo]);
+      }
+      setIsSharedLoading(false);
+    };
+
+    loadData();
+  }, [sharedPage, refreshTime]);
+
   useEffect(() => {
     const loadRecentFiles = async () => {
       const res = await getRecentFiles(currentUser?._id);
       setRecentFiles(res);
-      setIsLoadingRecent(false);
+      setIsRecentLoading(false);
     };
 
     loadRecentFiles();
@@ -137,9 +218,9 @@ export default function DashboardPage({
 
   async function openSubFolder(e: any, id?: string, isFolder?: boolean) {
     e.preventDefault();
-    await updateFileInfo({ _id: id, visited: new Date() });
 
     if (isFolder) {
+      await updateFileInfo({ _id: id, visited: new Date() });
       setUserFolderId(id);
     } else {
       await openFileLink(e, id!, false);
@@ -155,6 +236,7 @@ export default function DashboardPage({
       window.open(`/api/downloadFile/${id}`, "_blank");
 
       setRefreshTime(new Date());
+      
     }
   }
 
@@ -178,260 +260,79 @@ export default function DashboardPage({
         />
       </div>
 
-      <div className="d-flex flex-wrap">
-        <h5 className="font-size-16 me-3 mb-0" id="all">
-          My Folders and Files
-        </h5>
+      {/* All files */}
+      <FilesList
+        title={"All files"}
+        sectionId={"All"}
+        sectionImageUrl={"/images/all.png"}
+        navigationLinks={["Urgents", "Shared", "Recents"]}
+        files={myFiles}
+        currentUserId={currentUser?._id}
+        isLoading={isLoading}
+        pages={pages}
+        page={page}
+        openSubFolder={openSubFolder}
+        openFileLink={openFileLink}
+        setRefreshTime={setRefreshTime}
+        handleDelete={handleDelete}
+        handlePageChange={handlePageChange}
+        totalElements={totalElements}
+      />
 
-        <div className="ms-auto">
-          <a href="#recents" className="fw-medium text-reset">
-            <span
-              style={{ textDecoration: "underline" }}
-              className="text-primary"
-            >
-              Recents
-            </span>
-          </a>
-        </div>
-      </div>
+      {/* Urgent files */}
+      <FilesList
+        title={"Urgent files"}
+        sectionId={"Urgents"}
+        sectionImageUrl={"/images/alert.png"}
+        navigationLinks={["All", "Shared", "Recents"]}
+        files={myUrgentFiles}
+        currentUserId={currentUser?._id}
+        isLoading={isUrgentLoading}
+        pages={urgentPages}
+        page={urgentPage}
+        openSubFolder={openSubFolder}
+        openFileLink={openFileLink}
+        setRefreshTime={setRefreshTime}
+        handleDelete={handleDelete}
+        handlePageChange={handleUrgentPageChange}
+        totalElements={totalUrgentElements}
+      />
 
-      <h6 className="mt-4">
-        <Link
-          href={"#"}
-          onClick={(e) => {
-            openSubFolder(e, currentUser._id, true);
-          }}
-        >
-          {"root >"}
-        </Link>
-      </h6>
-
-      {/* My Files and Folders */}
-
-      {isLoading ? (
-        <div className="p-8">
-          <Loader />
-        </div>
-      ) : myFiles?.length > 0 ? (
-        <React.Fragment>
-          <div className="row mt-4">
-            {myFiles?.map((file: IMyFile) => (
-              <div
-                key={file._id}
-                className="col-lg-3 col-sm-6"
-                onDoubleClick={(e) => openSubFolder(e, file._id, file.isFolder)}
-              >
-                <div className="card shadow-none border">
-                  <div className="card-body p-3">
-                    <div className="d-flex flex-column gap-1">
-                      <div className="d-flex justify-content-between align-items-center">
-                        <a
-                          href="#"
-                          style={{
-                            width: "50px",
-                            height: "50px",
-                            cursor: "pointer",
-                          }}
-                          onClick={(e) =>
-                            openFileLink(e, file._id!, file.isFolder!)
-                          }
-                        >
-                          {file.isFolder ? (
-                            <i className="bx bxs-folder h1 mb-0 text-warning"></i>
-                          ) : (
-                            <Image
-                              width={100}
-                              height={100}
-                              src={getFileExtensionLogoPath(file.extension!)}
-                              alt="Logo"
-                            />
-                          )}
-                        </a>
-
-                        <div className="avatar-group">
-                          {!file.isFolder ? (
-                            <DownloadButton
-                              fileName={file.name!}
-                              downloadLink={`/api/downloadFile/${file._id}`}
-                            />
-                          ) : (
-                            ""
-                          )}
-
-                          {/* sharing files users */}
-                          {/* <div className="avatar-group-item">
-                                      <a href="#" className="d-inline-block">
-                                        <Image
-                                          width={100}
-                                          height={100}
-                                          src="https://bootdey.com/img/Content/avatar/avatar1.png"
-                                          alt="img"
-                                          className="rounded-circle avatar-sm"
-                                        />
-                                      </a>
-                                    </div>
-                                    <div className="avatar-group-item">
-                                      <a href="#" className="d-inline-block">
-                                        <Image
-                                          width={100}
-                                          height={100}
-                                          src="https://bootdey.com/img/Content/avatar/avatar2.png"
-                                          alt="img"
-                                          className="rounded-circle avatar-sm"
-                                        />
-                                      </a>
-                                    </div>
-                                    <div className="avatar-group-item">
-                                      <a href="#" className="d-inline-block">
-                                        <div className="avatar-sm">
-                                          <span className="avatar-title rounded-circle bg-success text-white font-size-16">
-                                            A
-                                          </span>
-                                        </div>
-                                      </a>
-                                    </div> */}
-                        </div>
-                      </div>
-                      <div className="d-flex flex-column gap-1">
-                        <h5 className="font-size-15 text-truncate">
-                          <a
-                            href="#"
-                            className="text-body"
-                            onClick={(e) =>
-                              openFileLink(e, file._id!, file.isFolder!)
-                            }
-                          >
-                            {file.name}
-                          </a>
-                        </h5>
-                        <div className="d-flex flex-column gap-1">
-                          <div className="d-flex justify-content-between">
-                            <label className="text-muted text-truncate">
-                              {file.isFolder
-                                ? file.numberOfContent + " items"
-                                : ""}
-                            </label>
-                            <label className="text-muted text-truncate">
-                              {Math.round(file.size! / 1000)}
-                              {" KB"}
-                            </label>
-                          </div>
-                          <div className="d-flex justify-content-between">
-                            <label className="text-muted text-truncate">
-                              {getLastVisitedTimeInterval(file.visited)}
-                            </label>
-
-                            <div className="d-flex gap-2">
-                              <Image
-                                width={20}
-                                height={20}
-                                src={"/images/forward-arrow.png"}
-                                alt="Delete"
-                                onClick={(e) =>
-                                  openSubFolder(e, file._id, file.isFolder)
-                                }
-                                style={{ cursor: "pointer" }}
-                              />
-                              {!file.isFolder || file.numberOfContent == 0 ? (
-                                <Image
-                                  width={20}
-                                  height={20}
-                                  src={"/images/delete.png"}
-                                  alt="Delete"
-                                  onClick={() =>
-                                    handleDelete(file._id!, file.name!)
-                                  }
-                                  style={{ cursor: "pointer" }}
-                                />
-                              ) : (
-                                ""
-                              )}
-
-                              <div className="text-muted">
-                                {file.isFolder ? (
-                                  <UpdateFolderModal
-                                    id={file._id}
-                                    refreshData={() =>
-                                      setRefreshTime(new Date())
-                                    }
-                                  />
-                                ) : (
-                                  <UpdateFileModal
-                                    id={file._id}
-                                    refreshData={() =>
-                                      setRefreshTime(new Date())
-                                    }
-                                  />
-                                )}
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          <div className="d-flex justify-content-center mt-2">
-            <nav aria-label="Page navigation example">
-              <ul className="pagination">
-                <li className="page-item">
-                  <a
-                    className="page-link"
-                    href="#"
-                    onClick={(e) => {
-                      handlePageChange(e, Number.parseInt(page) - 1);
-                    }}
-                  >
-                    Previous
-                  </a>
-                </li>
-                {pages?.map((p) => (
-                  <li key={p} className="page-item">
-                    <a
-                      className={`page-link ${p === page ? "active" : ""}`}
-                      href="#"
-                      onClick={(e) => {
-                        handlePageChange(e, p);
-                      }}
-                    >
-                      {p}
-                    </a>
-                  </li>
-                ))}
-
-                <li className="page-item">
-                  <a
-                    className="page-link"
-                    href="#"
-                    onClick={(e) => {
-                      handlePageChange(e, Number.parseInt(page) + 1);
-                    }}
-                  >
-                    Next
-                  </a>
-                </li>
-              </ul>
-            </nav>
-          </div>
-        </React.Fragment>
-      ) : (
-        <NoData />
-      )}
+      {/* Shared files */}
+      <FilesList
+        title={"Shared files"}
+        sectionId={"Shared"}
+        sectionImageUrl={"/images/sharing.png"}
+        navigationLinks={["All", "Urgents", "Recents"]}
+        files={sharedFiles}
+        currentUserId={currentUser?._id}
+        isLoading={isSharedLoading}
+        pages={sharedPages}
+        page={sharedPage}
+        openSubFolder={openSubFolder}
+        openFileLink={openFileLink}
+        setRefreshTime={setRefreshTime}
+        handleDelete={handleDelete}
+        handlePageChange={handleSharedPageChange}
+        totalElements={totalSharedElements}
+      />
 
       {/* Recently Opened */}
 
-      <div className="d-flex flex-wrap">
-        <h5 className="font-size-16 me-3" id="recents">
-          Recently Opened
+      <div className="d-flex flex-wrap mt-3">
+        <h5 className="d-flex gap-2 font-size-16 me-3 mb-0" id={"Recents"}>
+          <span>Recently Opened</span>
+          <Image
+            width={24}
+            height={24}
+            alt="Image"
+            src={"/images/recent.png"}
+          />
         </h5>
       </div>
       <hr className="mt-2" />
       <div className="table-responsive">
-        {isLoadingRecent ? (
+        {isRecentLoading ? (
           <div className="p-8">
             <Loader />
           </div>

@@ -3,6 +3,7 @@
 import React, { ChangeEventHandler, FC } from "react";
 
 type InputProps = {
+  component?: any;
   label: string;
   type: string;
   id?: string;
@@ -13,10 +14,12 @@ type InputProps = {
   error?: string;
   required?: boolean;
   readonly?: boolean;
+  checked?: boolean;
   handleChange?: ChangeEventHandler<HTMLInputElement> | undefined;
 };
 
 const FormInput: FC<InputProps> = ({
+  component,
   label,
   type,
   id,
@@ -27,6 +30,7 @@ const FormInput: FC<InputProps> = ({
   title,
   required,
   readonly,
+  checked,
   handleChange,
 }) => {
   if (!placeHolder) {
@@ -47,22 +51,27 @@ const FormInput: FC<InputProps> = ({
 
   return (
     <div>
-      <label htmlFor={id} className="form-label">
+      <label htmlFor={id} className="form-label mb-0">
         {label}
       </label>
-      <input
-        type={type}
-        className="form-control"
-        id={id}
-        name={name}
-        aria-describedby={`${name}Help`}
-        value={value}
-        placeholder={placeHolder}
-        title={title}
-        required={required}
-        readOnly={readonly}
-        onChange={handleChange}
-      />
+      {component ? (
+        <div>{component}</div>
+      ) : (
+        <input
+          type={type}
+          className="form-control"
+          id={id}
+          name={name}
+          aria-describedby={`${name}Help`}
+          value={value ? value : ""}
+          placeholder={placeHolder}
+          title={title}
+          required={required}
+          readOnly={readonly}
+          checked={checked}
+          onChange={handleChange}
+        />
+      )}
       {error ? (
         <div id={`${name}Help`} className="form-text text-danger">
           {error}

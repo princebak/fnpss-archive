@@ -1,11 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import CreateFileForm from "@/app/components/modal/forms/CreateFileForm";
-import Accordion from "../accordion/Accordion";
+import Image from "next/image";
+import SharingFileForm from "./forms/SharingFileForm";
 
-const UpdateFileModal = ({ id, refreshData, getFolders }: any) => {
-  
+const SharingFileModal = ({ id, refreshData }: any) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const toggleModal = (e: any) => {
@@ -15,34 +14,29 @@ const UpdateFileModal = ({ id, refreshData, getFolders }: any) => {
 
   return (
     <>
-      <a
-        className="font-size-16 text-muted"
-        role="button"
-        data-bs-toggle="dropdown"
-        aria-haspopup="true"
+      <Image
+        width={32}
+        height={32}
+        src={"/images/sharing.png"}
+        alt="sharing"
         id={id}
         onClick={toggleModal}
-      >
-        <i className="mdi mdi-dots-horizontal"></i>
-      </a>
+        style={{ cursor: "pointer" }}
+      />
 
       {isOpen && (
-        <div
-          className="fixed z-10 inset-0 overflow-y-auto"
-          onClick={(e) => e.preventDefault()}
-        >
+        <div className="fixed z-10 inset-0 overflow-y-auto">
           <div className="flex items-end justify-center min-h-screen pt-4 px-4 pb-20 text-center sm:block sm:p-0">
             <div
               className={`inline-block align-bottom bg-white rounded-lg text-left overflow-hidden shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-lg sm:w-full`}
               style={{ boxShadow: "0 0 40px gray" }}
             >
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                <CreateFileForm
+                <SharingFileForm
                   id={id}
-                  closeModal={() => setIsOpen(false)}
                   refreshData={refreshData}
-                  getFolders={getFolders}
-                />{" "}
+                  closeModal={() => setIsOpen(false)}
+                />
               </div>
               <div className="bg-gray-50 px-4 py-3 sm:px-6 d-flex justify-content-end ">
                 <button
@@ -61,4 +55,4 @@ const UpdateFileModal = ({ id, refreshData, getFolders }: any) => {
   );
 };
 
-export default UpdateFileModal;
+export default SharingFileModal;

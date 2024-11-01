@@ -6,15 +6,31 @@ import { dbConnector } from "@/utils/dbConnector";
 import {
   dbObjectToJsObject,
   getContentWithPagination,
+  getFileNameWithoutExtension,
 } from "@/utils/myFunctions";
 import { getDownloadFileUrl } from "./AwsS3Service";
 
-export async function saveFileInfo(myFile: IMyFile) {
+export async function saveFileInfo(myFile: IMyFile, shouldUpdateAlert: string) {
   try {
     await dbConnector();
+    if (!myFile.parentFolder) {
+      myFile.parentFolder = myFile.owner;
+    }
+
+    if (!myFile.name) {
+      myFile = {
+        ...myFile,
+        name: getFileNameWithoutExtension(myFile.originalName!),
+      };
+    }
+
+    if (shouldUpdateAlert === "true") {
+      myFile.alertDate = myFile.alertDate ? myFile.alertDate : null;
+      myFile.scheduledDate = myFile.scheduledDate ? myFile.scheduledDate : null;
+      myFile.alertReason = myFile.alertReason ? myFile.alertReason : null;
+    }
 
     const myFileModel = new MyFile(myFile);
-    console.log("myFileModel >> ", myFileModel);
     const existingFolder = await MyFile.findById(myFile.parentFolder);
 
     if (existingFolder) {
@@ -25,8 +41,14 @@ export async function saveFileInfo(myFile: IMyFile) {
     }
 
     const savedFileInfo = await myFileModel.save();
-    return { message: "File info saved", id: savedFileInfo._id.toString() };
+
+    return dbObjectToJsObject({
+      message: "File info saved",
+      id: savedFileInfo._id.toString(),
+    });
   } catch (error: any) {
+    console.log("Creation error << ", error.message);
+
     return { error: error.message };
   }
 }
@@ -48,15 +70,45 @@ export async function getFolders(userId: string) {
 }
 
 // even for Delete and change last visited Date
-export async function updateFileInfo(myFile: IMyFile) {
+export async function updateFileInfo(
+  myFile: IMyFile,
+  shouldUpdateAlert?: boolean
+) {
   try {
     await dbConnector();
 
-    const myFileModel = await MyFile.findByIdAndUpdate(myFile._id, myFile, {
-      new: true,
+    let uploadedFile: any = { ...myFile };
+
+    if (shouldUpdateAlert === true) {
+      uploadedFile.alertDate = uploadedFile.alertDate
+        ? uploadedFile.alertDate
+        : null;
+      uploadedFile.scheduledDate = uploadedFile.scheduledDate
+        ? uploadedFile.scheduledDate
+        : null;
+      uploadedFile.alertReason = uploadedFile.alertReason
+        ? uploadedFile.alertReason
+        : null;
+    } else {
+      const { scheduledDate, alertDate, alertReason, ...rest } = uploadedFile;
+      uploadedFile = { ...rest };
+    }
+
+    console.log("uploadedFile >> ", uploadedFile);
+    const myFileModel = await MyFile.findByIdAndUpdate(
+      uploadedFile._id,
+      uploadedFile,
+      {
+        new: true,
+      }
+    );
+
+    return dbObjectToJsObject({
+      message: "File info updated",
+      data: myFileModel._doc,
     });
-    return { message: "File info updated", data: myFileModel };
   } catch (error: any) {
+    console.log("updateFileInfo error >> ", error?.message);
     return { error: error.message };
   }
 }
@@ -78,15 +130,50 @@ export async function getAllFiles(
   return dbObjectToJsObject(filesPerPage);
 }
 
+export async function getAllUrgentFiles(userId: string, page: string) {
+  await dbConnector();
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+
+  //TODO Find your own urgent files
+  const files = await MyFile.find({
+    owner: userId,
+    alertDate: today,
+    status: { $ne: fileStatus.REMOVED },
+  });
+
+  //TODO Find shared urgent files ????
+
+  const filesPerPage = getContentWithPagination(files, page, "");
+
+  return dbObjectToJsObject(filesPerPage);
+}
+
+export async function getAllSharedFiles(userId: string, page: string) {
+  await dbConnector();
+  const today = new Date().toISOString().split("T")[0];
+
+  const files = await MyFile.find({
+    sharedWithUsers: { $in: [userId] },
+    status: { $ne: fileStatus.REMOVED },
+  });
+  const filesPerPage = getContentWithPagination(files, page, "");
+
+  return dbObjectToJsObject(filesPerPage);
+}
+
 export async function getRecentFiles(userId: string) {
   await dbConnector();
 
+  // Find your own recent files
   const files = await MyFile.find({
     owner: userId,
     isFolder: false,
     status: { $ne: fileStatus.REMOVED },
     visited: { $ne: null },
   });
+
+  //TODO Find recent shared files ????
 
   // Desc Sorting
   let visitedA = null;
@@ -106,7 +193,7 @@ export async function getRecentFiles(userId: string) {
 
 export async function findById(id: string) {
   await dbConnector();
-  const fileInfo = await MyFile.findById(id);
+  const fileInfo = await MyFile.findById(id).populate("sharedWithUsers");
   return dbObjectToJsObject(fileInfo);
 }
 

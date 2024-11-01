@@ -14,6 +14,7 @@ const myFileSchema = new Schema<IMyFile>(
     parentFolder: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "MyFile",
+      required: false,
     },
     type: {
       type: String,
@@ -21,14 +22,21 @@ const myFileSchema = new Schema<IMyFile>(
     scheduledDate: {
       type: Date,
     },
-    alertDates: {
-      type: Array<FileAlert>,
+    alertDate: {
+      type: Date,
+    },
+    alertReason: {
+      type: String,
     },
     isFolder: {
       type: Boolean,
       default: false,
     },
     name: {
+      type: String,
+      required: true,
+    },
+    originalName: {
       type: String,
       required: true,
     },
@@ -55,6 +63,12 @@ const myFileSchema = new Schema<IMyFile>(
       required: true,
       default: fileStatus.CREATED,
     },
+    sharedWithUsers: [
+      {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "User",
+      },
+    ],
   },
   { timestamps: true }
 );

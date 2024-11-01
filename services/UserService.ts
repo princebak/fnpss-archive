@@ -28,7 +28,6 @@ type RegisterPayload = {
 };
 
 export async function register(data: RegisterPayload) {
-
   try {
     // Initiate The Db  connection if not already
     await dbConnector();
@@ -181,4 +180,11 @@ export async function authenticate(data: any) {
   }
 
   return userWithoutPassword;
+}
+
+export async function getAllSilmUsers() {
+  await dbConnector();
+  const users = await User.find({}, { _id: 1, name: 1 });
+
+  return dbObjectToJsObject(users);
 }

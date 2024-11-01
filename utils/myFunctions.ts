@@ -3,6 +3,7 @@ import User from "@/models/User";
 
 import { FileExtensionLogo, PAGE_LIMIT, TOKEN_VALIDITY } from "./constants";
 import { FieldValidationResult } from "@/classes";
+import { equal } from "assert";
 
 export function getFileExtension(filename: string) {
   const match = filename.match(/\.([^./]+)$/);
@@ -14,7 +15,7 @@ export function getFileNameWithoutExtension(filename: string) {
   const match = filename.match(/\.([^./]+)$/);
   const extension = match ? match[1] : null;
   if (extension) {
-    const name = filename.slice(0, filename.length - (extension.length + 1 ));
+    const name = filename.slice(0, filename.length - (extension.length + 1));
     return name;
   }
   return filename;
@@ -329,4 +330,27 @@ export const isTheSubscriptionValid = (subscription: ISubscription) => {
   const diff = currentDate.getTime() < expireAt.getTime();
 
   return diff;
+};
+
+export const isToday = (date: Date) => {
+  const today = new Date();
+  today.setHours(0, 0, 0, 0);
+  const aimingDate = new Date(date);
+
+  return today.getTime() == aimingDate.getTime();
+};
+
+export const getDateOnly = (date: Date) => {
+  return new Date(date.getFullYear(), date.getMonth(), date.getDate());
+};
+
+export const getFileFullname = (
+  name: string,
+  isFolder: boolean,
+  extension: string | undefined | null
+) => {
+  if (!isFolder) {
+    return `${name!}.${extension!}`;
+  }
+  return name;
 };

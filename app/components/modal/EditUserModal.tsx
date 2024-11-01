@@ -6,17 +6,12 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import UserLogButton from "../UserLogButton";
 import { useSelector } from "react-redux";
-import SubscribButton from "../SubscribButton";
-import { getFormatedDate } from "@/utils/myFunctions";
-import { subscriptionStatus } from "@/utils/constants";
 
 const EditUserModal = () => {
   const [isOpen, setIsOpen] = useState(false);
   const router = useRouter();
   const { currentUser } = useSelector((state: any) => state.user);
-  const { currentSubscription } = useSelector(
-    (state: any) => state.subscription
-  );
+
   const [isUserProfileDefdault, setIsUserProfileDefdault] = useState(false);
   const currentPath = usePathname();
 
@@ -67,15 +62,6 @@ const EditUserModal = () => {
               </div>
             )}
 
-            {/*  <Image
-              id="profilePic"
-              className="bi d-block mx-auto mb-1 rounded-circle avatar-sm"
-              width="100"
-              height="100"
-              src={`/api/downloadFile/${currentUser?._id}`}
-              onError={() => setIsUserProfileDefdault(true)}
-              alt="Image"
-            /> */}
             <div className="userZoneImage ">
               <Image
                 id="profilePic"
@@ -90,7 +76,12 @@ const EditUserModal = () => {
             {currentUser?.name}
           </a>
         ) : (
-          "Login"
+          <span
+            style={{ cursor: "pointer" }}
+            onClick={() => router.push("/login")}
+          >
+            {"Login"}
+          </span>
         )}
 
         <UserLogButton currentUser={currentUser} />
@@ -104,55 +95,19 @@ const EditUserModal = () => {
               style={{ boxShadow: "0 0 40px gray" }}
             >
               <div className="bg-white px-4 pt-5 pb-4 sm:p-6 sm:pb-4">
-                {currentSubscription ? (
-                  <label className="alert alert-primary w-full">
-                    {`Subscription exp. : ${getFormatedDate(
-                      currentSubscription?.expireAt,
-                      true,
-                      true
-                    )}`}
-                  </label>
-                ) : (
-                  <label className="alert alert-warning w-full">
-                    {"Your subscription expired."}
-                  </label>
-                )}
-                {/*
-                <label
-                  className={`${
-                    currentSubscription?.status === subscriptionStatus.ACTIVE
-                      ? "text-primary"
-                      : "text-warning"
-                  }`}
-                >
-                  {`Subscription exp. : ${getFormatedDate(
-                    currentSubscription?.expireAt,
-                    true,
-                    true
-                  )}`}
-                </label>
-                */}
                 <EditUserForm closeModal={() => setIsOpen(false)} />{" "}
               </div>
               <div className="bg-gray-50 px-4 py-3 sm:px-6 d-flex justify-content-between ">
-                {currentPath != "/dashboard" ? (
-                  <button
-                    type="button"
-                    className="btn btn-warning"
-                    onClick={(e: any) => {
-                      toggleModal(e);
-                      router.push("/dashboard");
-                    }}
-                  >
-                    Dashboard
-                  </button>
-                ) : (
-                  <SubscribButton
-                    closeModal={() => {
-                      setIsOpen(false);
-                    }}
-                  />
-                )}
+                <button
+                  type="button"
+                  className="btn btn-warning"
+                  onClick={(e: any) => {
+                    toggleModal(e);
+                    router.push("/dashboard");
+                  }}
+                >
+                  Dashboard
+                </button>
 
                 <button
                   type="button"

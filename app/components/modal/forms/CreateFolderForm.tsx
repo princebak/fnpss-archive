@@ -9,6 +9,7 @@ import {
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import FormSelect from "../../form/elements/FormSelect";
+import FileEditAlert from "../../form/elements/FileEditAlert";
 
 const CreateFolderForm = ({
   id,
@@ -17,12 +18,19 @@ const CreateFolderForm = ({
   refreshData,
 }: any) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [message, setMessage] = useState("");
+  const [message, setMessage] = useState<{
+    content: string;
+    colorClass?: string;
+  }>({ content: "", colorClass: "danger" });
   const { currentUser } = useSelector((state: any) => state.user);
 
   const [name, setName] = useState("");
-  const [parentFolder, setParentFolder] = useState("");
+  const [parentFolder, setParentFolder] = useState(userFolderId);
   const [folders, setFolders] = useState<Array<IMyFile>>();
+
+  const [alertDate, setAlertDate] = useState<Date | null>(null);
+  const [alertReason, setAlertReason] = useState<string>("");
+  const [scheduledDate, setScheduledDate] = useState<Date | null>(null);
 
   const closeModalAndReload = () => {
     closeModal();
@@ -32,35 +40,78 @@ const CreateFolderForm = ({
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     setIsLoading(true);
-    if (!id) {
-      // Create a new Folder
-      const res = await saveFileInfo({
-        name,
-        parentFolder: parentFolder,
-        owner: currentUser._id,
-        isFolder: true,
-      });
-      if (res.error) {
-        setMessage("Bad request.");
+
+    const data = {
+      name,
+      originalName: name,
+      parentFolder,
+      scheduledDate,
+      alertDate,
+      alertReason,
+    };
+
+    if (name) {
+      if (alertDate && scheduledDate && alertDate > scheduledDate) {
+        setMessage({
+          ...message,
+          content:
+            "The alert date can't be after the scheduled date, please to correct it.",
+        });
+        setIsLoading(false);
+        return;
+      } else if (alertDate && !alertReason) {
+        setMessage({
+          ...message,
+          content: "The alert reason is mandatory.",
+        });
+        setIsLoading(false);
+        return;
+      }
+
+      if (!id) {
+        // Create a new Folder
+        const finalData = {
+          ...data,
+          owner: currentUser._id,
+          isFolder: true,
+        };
+        const res = await saveFileInfo(
+          finalData,
+          "true" // TO DO check without this... because I think we should remove it
+        );
+        if (res.error) {
+          console.log("Error >>  ", res.error);
+          setMessage({ ...message, content: "Bad request." });
+        } else {
+          setMessage({
+            content: "Folder uploaded successfully !",
+            colorClass: "success",
+          });
+          closeModalAndReload();
+        }
       } else {
-        setMessage("Folder uploaded successfully !");
-        closeModalAndReload();
+        // Update the Folder
+
+        const res = await updateFileInfo({
+          _id: id,
+          ...data,
+        });
+
+        if (res.error) {
+          setMessage({ ...message, content: "Bad request." });
+        } else {
+          setMessage({
+            content: "Folder updated with success !!",
+            colorClass: "success",
+          });
+          closeModalAndReload();
+        }
       }
     } else {
-      // Update the Folder
-
-      const res = await updateFileInfo({
-        _id: id,
-        name,
-        parentFolder: parentFolder,
+      setMessage({
+        ...message,
+        content: "A Folder should have a display name.",
       });
-
-      if (res.error) {
-        setMessage("Bad request.");
-      } else {
-        setMessage("Folder updated with success !!");
-        closeModalAndReload();
-      }
     }
 
     setIsLoading(false);
@@ -73,17 +124,30 @@ const CreateFolderForm = ({
         if (fileInfo) {
           setName(fileInfo.name);
           setParentFolder(fileInfo.parentFolder);
+          setAlertDate(fileInfo.alertDate ? fileInfo.alertDate! : null);
+          setScheduledDate(
+            fileInfo.scheduledDate ? fileInfo.scheduledDate! : null
+          );
+          setAlertReason(fileInfo.alertReason!);
         }
       }
       const myFolders = await getFolders(currentUser._id);
-      setFolders(myFolders);
+
+      const validFolders = myFolders.filter((folder: any) => folder._id != id);
+      setFolders(validFolders);
     };
     loadFileInfo();
   }, []);
 
   return (
     <form>
-      {message ? <label>{message}</label> : ""}
+      {message.content ? (
+        <label className={`alert alert-${message.colorClass}`}>
+          {message.content}
+        </label>
+      ) : (
+        ""
+      )}
 
       <div
         className="bd-example d-flex flex-column gap-2"
@@ -122,6 +186,16 @@ const CreateFolderForm = ({
             parentFolder={parentFolder}
             setParentFolder={setParentFolder}
             userId={currentUser._id}
+          />
+
+          <FileEditAlert
+            id={"folderIsOnAlert"}
+            alertDate={alertDate}
+            scheduledDate={scheduledDate}
+            setAlertDate={(value: Date) => setAlertDate(value)}
+            setScheduledDate={(value: Date) => setScheduledDate(value)}
+            alertReason={alertReason}
+            setAlertReason={(value: string) => setAlertReason(value)}
           />
         </div>
       </div>

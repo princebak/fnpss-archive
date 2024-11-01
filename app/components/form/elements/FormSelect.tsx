@@ -25,8 +25,8 @@ const FormSelect = ({
           ))}
         </select>
       ) : (
-        <p className="alert alert-info">
-          The folder list will be shwon here, you are seeing the message because
+        <p className="alert alert-info mb-0">
+          The folder list will be shown here, you are seeing the message because
           there is no folder yet.
         </p>
       )}
