@@ -63,10 +63,34 @@ const myFileSchema = new Schema<IMyFile>(
       required: true,
       default: fileStatus.CREATED,
     },
-    sharedWithUsers: [
+    sharing: {
+      type: {
+        sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
+        sharingDate:{type:Date},
+        receivers: [
+          {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "User",
+          },
+        ],
+      },
+      default: null,
+    },
+    feedbacks: [
       {
-        type: mongoose.Schema.Types.ObjectId,
-        ref: "User",
+        type: {
+          receiver: {
+            type: {
+              type: mongoose.Schema.Types.ObjectId,
+              ref: "User",
+            },
+          },
+          feedbackMessage: { type: String },
+          feedbackDate: {
+            type: Date,
+          },
+        },
+        default:[]
       },
     ],
   },

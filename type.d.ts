@@ -15,7 +15,18 @@ interface IMyFile {
   scheduledDate: Date?;
   alertDate: Date?;
   alertReason?: string?;
-  sharedWithUsers?: string[];
+  sharing?: {
+    sender: string;
+    sharingDate: Date;
+    receivers: string[];
+  };
+  feedbacks?: Partial<FeedbackContent>[];
+}
+
+interface FeedbackContent {
+  receiver: string;
+  feedbackMessage: string;
+  feedbackDate: Date;
 }
 
 interface FileAlert {

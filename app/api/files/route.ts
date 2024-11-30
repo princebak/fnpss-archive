@@ -1,17 +1,12 @@
-// pages/api/uploadImage.ts
-import { uploadAFile } from "@/services/AwsS3Service";
+import { saveToLocalStorage } from "@/services/LocalStorageService";
 import { saveFileInfo } from "@/services/MyFileService";
 import { fileRole } from "@/utils/constants";
-import {
-  getFileExtension,
-  getFileNameWithoutExtension,
-} from "@/utils/myFunctions";
+import { getFileExtension } from "@/utils/myFunctions";
 import { NextResponse } from "next/server";
 
 export async function POST(req: any) {
   try {
     const formData: FormData = await req.formData();
-    console.log("uploading file >> ", formData.entries());
     const file = formData.get("file") as File;
     const name = formData.get("name") as string;
     const userId = formData.get("userId") as string;
@@ -25,7 +20,7 @@ export async function POST(req: any) {
       console.log("File not exist");
       return NextResponse.json({ error: "file is missing." }, { status: 400 });
     }
-    const buffer = Buffer.from(await file.arrayBuffer());
+
     const extension = getFileExtension(file.name);
 
     let fileKey = userId;
@@ -54,7 +49,7 @@ export async function POST(req: any) {
           alertReason: alertReason,
         };
       }
-      
+
       const savedFileInfoRes = await saveFileInfo(savingFileInfo, isOnAlert);
       fileKey = savedFileInfoRes.id;
 
@@ -66,7 +61,10 @@ export async function POST(req: any) {
       }
     }
 
-    const uploadAFileRes = await uploadAFile(buffer, fileKey, file.type);
+    const uploadAFileRes = await saveToLocalStorage(
+      file,
+      `${fileKey}.${extension}`
+    );
 
     if (uploadAFileRes.error) {
       return NextResponse.json(

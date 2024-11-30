@@ -13,8 +13,12 @@ import { useSelector } from "react-redux";
 import React from "react";
 import UpdateFolderModal from "./modal/UpdateFolderModal";
 import { fileStatus } from "@/utils/constants";
-import { getAllSharedFiles } from "@/services/MyFileService";
+import {
+  getAllReceivedFiles,
+  getAllSharedFiles,
+} from "@/services/MyFileService";
 import FilesList from "./FilesList";
+import { useRouter } from "next/navigation";
 
 export default function DashboardPage({
   getAllFiles,
@@ -26,25 +30,29 @@ export default function DashboardPage({
   const [myUrgentFiles, setMyUrgentFiles] = useState<any>([]);
   const [recentFiles, setRecentFiles] = useState<any>([]);
   const [sharedFiles, setSharedFiles] = useState<any>([]);
+  const [receivedFiles, setReceivedFiles] = useState<any>([]);
   const { currentUser } = useSelector((state: any) => state.user);
-  
 
   // Pagination and Search
   const [page, setPage] = useState<any>(1);
   const [urgentPage, setUrgentPage] = useState<any>(1);
   const [sharedPage, setSharedPage] = useState<any>(1);
+  const [receivedPage, setReceivedPage] = useState<any>(1);
   const [search, setSearch] = useState<any>("");
   const [isLoading, setIsLoading] = useState(true);
   const [isRecentLoading, setIsRecentLoading] = useState(true);
   const [isUrgentLoading, setIsUrgentLoading] = useState(true);
   const [isSharedLoading, setIsSharedLoading] = useState(true);
+  const [isReceivedLoading, setIsReceivedLoading] = useState(true);
   const [totalElements, setTotalElements] = useState<any>(0);
   const [totalUrgentElements, setTotalUrgentElements] = useState<any>(0);
   const [totalSharedElements, setTotalSharedElements] = useState<any>(0);
+  const [totalReceivedElements, setTotalReceivedElements] = useState<any>(0);
   const [refreshTime, setRefreshTime] = useState<any>(null);
   const [pages, setPages] = useState([1]);
   const [urgentPages, setUrgentPages] = useState([1]);
   const [sharedPages, setSharedPages] = useState([1]);
+  const [receivedPages, setReceivedPages] = useState([1]);
   const [userFolderId, setUserFolderId] = useState(currentUser?._id);
 
   useEffect(() => {
@@ -84,6 +92,11 @@ export default function DashboardPage({
   const handleSharedPageChange = (e: any, currentPage: number) => {
     e.preventDefault();
     setSharedPage(currentPage);
+  };
+
+  const handleReceivedPageChange = (e: any, currentPage: number) => {
+    e.preventDefault();
+    setReceivedPage(currentPage);
   };
 
   const handleDelete = async (id: string, name: string) => {
@@ -198,6 +211,38 @@ export default function DashboardPage({
     loadData();
   }, [sharedPage, refreshTime]);
 
+  {
+    /* Received files side effects */
+  }
+  useEffect(() => {
+    let totPages = 0;
+    const loadFilesList = async () => {
+      const res = await getAllReceivedFiles(currentUser?._id, receivedPage);
+      setReceivedFiles(res?.content);
+      setTotalReceivedElements(res?.totalElements);
+      setReceivedPage(res?.currentPage);
+      totPages = res?.totalPages;
+
+      return true;
+    };
+
+    const loadData = async () => {
+      setIsReceivedLoading(true);
+
+      const res = await loadFilesList();
+      if (res) {
+        let myPagesNo = [];
+        for (let index = 1; index <= totPages; index++) {
+          myPagesNo.push(index);
+        }
+        setReceivedPages([...myPagesNo]);
+      }
+      setIsReceivedLoading(false);
+    };
+
+    loadData();
+  }, [receivedPage, refreshTime]);
+
   useEffect(() => {
     const loadRecentFiles = async () => {
       const res = await getRecentFiles(currentUser?._id);
@@ -216,27 +261,36 @@ export default function DashboardPage({
     }, 3000);
   };
 
-  async function openSubFolder(e: any, id?: string, isFolder?: boolean) {
+  async function openSubFolder(
+    e: any,
+    id?: string,
+    isFolder?: boolean,
+    extension?: string
+  ) {
     e.preventDefault();
 
     if (isFolder) {
       await updateFileInfo({ _id: id, visited: new Date() });
       setUserFolderId(id);
+      setRefreshTime(new Date());
     } else {
-      await openFileLink(e, id!, false);
+      await openFileLink(e, id!, false, extension!);
     }
-    setRefreshTime(new Date());
   }
 
-  async function openFileLink(e: any, id: string, isFolder: boolean) {
+  async function openFileLink(
+    e: any,
+    id: string,
+    isFolder: boolean,
+    extension: string
+  ) {
     e.preventDefault();
     if (!isFolder) {
       await updateFileInfo({ _id: id, visited: new Date() });
 
-      window.open(`/api/downloadFile/${id}`, "_blank");
+      window.open(`/api/files/${id}?extension=${extension}`, "_blank");
 
       setRefreshTime(new Date());
-      
     }
   }
 
@@ -296,6 +350,25 @@ export default function DashboardPage({
         handleDelete={handleDelete}
         handlePageChange={handleUrgentPageChange}
         totalElements={totalUrgentElements}
+      />
+
+      {/* Received files */}
+      <FilesList
+        title={"Received files"}
+        sectionId={"Received"}
+        sectionImageUrl={"/images/sharing.png"}
+        navigationLinks={["All", "Urgents", "Recents"]}
+        files={receivedFiles}
+        currentUserId={currentUser?._id}
+        isLoading={isReceivedLoading}
+        pages={receivedPages}
+        page={receivedPage}
+        openSubFolder={openSubFolder}
+        openFileLink={openFileLink}
+        setRefreshTime={setRefreshTime}
+        handleDelete={handleDelete}
+        handlePageChange={handleReceivedPageChange}
+        totalElements={totalReceivedElements}
       />
 
       {/* Shared files */}
@@ -367,7 +440,8 @@ export default function DashboardPage({
                     <div className="avatar-group">
                       <DownloadButton
                         fileName={file.name}
-                        downloadLink={`/api/downloadFile/${file._id}`}
+                        downloadLink={`/api/files/${file._id}?extension=${file.extension}&&download=true`}
+                        extension={file.extension!}
                       />
                     </div>
                   </td>

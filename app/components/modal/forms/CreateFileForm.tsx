@@ -61,7 +61,7 @@ const CreateFileForm = ({ id, closeModal, refreshData, userFolderId }: any) => {
         formData.append("parentFolder", parentFolder);
         formData.append("userId", currentUser._id);
         formData.append("fileRole", fileRole.SIMPLE_FILE);
-        const uploadRes = await fetch("/api/uploadFile", {
+        const uploadRes = await fetch("/api/files", {
           method: "POST",
           body: formData,
         });

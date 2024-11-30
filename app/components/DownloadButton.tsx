@@ -7,9 +7,11 @@ import Loader from "./Loader";
 const DownloadButton = ({
   fileName,
   downloadLink,
+  extension,
 }: {
   fileName: string;
   downloadLink: string;
+  extension: string;
 }) => {
   const [isLoading, setIsLoading] = useState(false);
 
@@ -24,7 +26,7 @@ const DownloadButton = ({
       // Create a link element
       const link = document.createElement("a");
       link.href = URL.createObjectURL(blob);
-      link.download = fileName;
+      link.download = `${fileName}.${extension}`;
 
       // Trigger the download
       link.click();
@@ -50,6 +52,7 @@ const DownloadButton = ({
           style={{ cursor: "pointer" }}
           onClick={handleClick}
           className="align-self-center"
+          title="download"
         />
       )}
     </>

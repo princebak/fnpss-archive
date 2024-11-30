@@ -7,8 +7,10 @@ import {
   dbObjectToJsObject,
   getContentWithPagination,
   getFileNameWithoutExtension,
+  getFormatedDate,
 } from "@/utils/myFunctions";
 import { getDownloadFileUrl } from "./AwsS3Service";
+import mongoose from "mongoose";
 
 export async function saveFileInfo(myFile: IMyFile, shouldUpdateAlert: string) {
   try {
@@ -71,7 +73,7 @@ export async function getFolders(userId: string) {
 
 // even for Delete and change last visited Date
 export async function updateFileInfo(
-  myFile: IMyFile,
+  myFile: Partial<IMyFile>,
   shouldUpdateAlert?: boolean
 ) {
   try {
@@ -109,6 +111,49 @@ export async function updateFileInfo(
     });
   } catch (error: any) {
     console.log("updateFileInfo error >> ", error?.message);
+    return { error: error.message };
+  }
+}
+
+export async function addUserFeedback(
+  userId: string,
+  fileId: string,
+  feedbackMessage: string
+) {
+  try {
+    await dbConnector();
+
+    const existingFile = await MyFile.findById(fileId);
+    let existingFeedbacks = existingFile.feedbacks;
+    const newFeedbacks = [
+      ...existingFeedbacks,
+      {
+        receiver: { type: userId },
+        feedbackMessage: feedbackMessage,
+        feedbackDate: new Date(),
+      },
+    ];
+
+    console.log("{existingFeedbacks,newFeedbacks}", {
+      existingFeedbacks,
+      newFeedbacks,
+    });
+
+    const myFileModel = await MyFile.findByIdAndUpdate(
+      fileId,
+      { feedbacks: newFeedbacks },
+      {
+        new: true,
+      }
+    );
+    console.log("Updated myFileModel >> ", myFileModel);
+
+    return dbObjectToJsObject({
+      message: "File FeedbacksChannels updated",
+      data: myFileModel._doc,
+    });
+  } catch (error: any) {
+    console.log("update FeedbacksChannels error >> ", error?.message);
     return { error: error.message };
   }
 }
@@ -151,10 +196,21 @@ export async function getAllUrgentFiles(userId: string, page: string) {
 
 export async function getAllSharedFiles(userId: string, page: string) {
   await dbConnector();
-  const today = new Date().toISOString().split("T")[0];
 
   const files = await MyFile.find({
-    sharedWithUsers: { $in: [userId] },
+    "sharing.sender": { $eq: [userId] },
+    status: { $ne: fileStatus.REMOVED },
+  });
+  const filesPerPage = getContentWithPagination(files, page, "");
+
+  return dbObjectToJsObject(filesPerPage);
+}
+
+export async function getAllReceivedFiles(userId: string, page: string) {
+  await dbConnector();
+
+  const files = await MyFile.find({
+    "sharing.receivers": { $in: [new mongoose.Types.ObjectId(userId)] },
     status: { $ne: fileStatus.REMOVED },
   });
   const filesPerPage = getContentWithPagination(files, page, "");
@@ -193,7 +249,14 @@ export async function getRecentFiles(userId: string) {
 
 export async function findById(id: string) {
   await dbConnector();
-  const fileInfo = await MyFile.findById(id).populate("sharedWithUsers");
+  const fileInfo = await MyFile.findById(id)
+    .populate("sharing.receivers")
+    .populate({
+      path: "feedbacks.receiver.type", // Specify the path to populate
+      model: "User", // Reference the User model
+    });
+  // .populate("feedbacks.receiver");
+
   return dbObjectToJsObject(fileInfo);
 }
 
@@ -211,4 +274,39 @@ export async function downloadFile(
     console.error("Error downloading file:", error);
     throw error;
   }
+}
+
+export async function isUserAllowedToAccessThisFile(user: any, id: string) {
+  // TO DO :
+  // 1. find the file from the database using the file id .DONE
+  // 2. return true only if the user is the file owner or is in receivers list
+  // 3. else return false
+  const existingFile: IMyFile | null = await MyFile.findById(id);
+
+  if (!existingFile) {
+    throw Error("There is no file with the sent id.");
+  }
+
+  if (
+    existingFile.owner.toString() === user._id ||
+    existingFile.sharing?.receivers.includes(user._id)
+  ) {
+    return true;
+  }
+
+  return false;
+}
+
+export async function getFileMetadata(id: string) {
+  await dbConnector();
+  const fileInfo = await MyFile.findById(id).populate("owner");
+  const data = {
+    ownerName: fileInfo.owner.name,
+    createdDate: getFormatedDate(fileInfo.createdAt, true, true),
+    sharedDate: fileInfo.sharing
+      ? getFormatedDate(fileInfo.sharing.sharingDate, true, true)
+      : "not shared yet",
+  };
+
+  return dbObjectToJsObject(data);
 }

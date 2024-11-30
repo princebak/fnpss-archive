@@ -2,11 +2,13 @@
 
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
-import SharingFileForm from "./forms/SharingFileForm";
-import { getFileMetadata } from "@/services/MyFileService";
+import FeedbackFileForm from "./forms/FeedbackFileForm";
+import NotificationCirle from "../NotificationCirle";
+import { findById, getFileMetadata } from "@/services/MyFileService";
 
-const SharingFileModal = ({ id, refreshData, sectionId }: any) => {
+const FeedbackFileModal = ({ id, refreshData }: any) => {
   const [isOpen, setIsOpen] = useState(false);
+  const [totalElements, setTotalElements] = useState(0);
   const [ownerName, setOwnerName] = useState("");
   const [createdDate, setCreatedDate] = useState("");
   const [sharedDate, setSharedDate] = useState("");
@@ -18,9 +20,17 @@ const SharingFileModal = ({ id, refreshData, sectionId }: any) => {
   };
 
   useEffect(() => {
-    if (sectionId != "Received") {
-      setShouldUpdate(true);
-    }
+    const updateTotalElements = async () => {
+      const theFile = await findById(id);
+      const sharing = theFile.sharing;
+      if (sharing) {
+        setShouldUpdate(true);
+      }
+      setTotalElements(theFile.feedbacks.length);
+    };
+
+    updateTotalElements();
+
     const getTheFileOwner = async () => {
       const fileMetadata = await getFileMetadata(id);
       setOwnerName(fileMetadata?.ownerName);
@@ -36,16 +46,24 @@ const SharingFileModal = ({ id, refreshData, sectionId }: any) => {
   } else {
     return (
       <>
-        <Image
-          width={32}
-          height={32}
-          src={"/images/sharing.png"}
-          alt="sharing"
-          id={id}
+        <div
+          className="d-flex"
+          title="feedback"
           onClick={toggleModal}
           style={{ cursor: "pointer" }}
-          title="share"
-        />
+        >
+          <Image
+            width={24}
+            height={24}
+            src={"/images/feedback.png"}
+            alt="feedback"
+            id={id}
+          />
+          <NotificationCirle
+            sectionId={"Urgents"}
+            totalElements={totalElements}
+          />
+        </div>
 
         {isOpen && (
           <div className="fixed z-10 inset-0 overflow-y-auto">
@@ -67,7 +85,7 @@ const SharingFileModal = ({ id, refreshData, sectionId }: any) => {
                       {ownerName}
                     </span>
                   </div>
-                  <SharingFileForm
+                  <FeedbackFileForm
                     id={id}
                     refreshData={refreshData}
                     closeModal={() => setIsOpen(false)}
@@ -93,4 +111,4 @@ const SharingFileModal = ({ id, refreshData, sectionId }: any) => {
   }
 };
 
-export default SharingFileModal;
+export default FeedbackFileModal;

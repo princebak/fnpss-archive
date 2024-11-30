@@ -7,14 +7,22 @@ import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import FormSimpleCheckbox from "./FormSimpleCheckbox";
 
-const SharingFileForm = ({ id, closeModal, refreshData }: any) => {
+const SharingFileForm = ({
+  id,
+  closeModal,
+  refreshData,
+  sharedDate,
+  createdDate,
+}: any) => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [fileName, setFileName] = useState("");
   const [fileExtension, setFileExtension] = useState("");
   const [isFolder, setIsFolder] = useState(false);
-  const [sharedWithUsers, setSharedWithUsers] = useState<IMyFile[]>([]);
-  const [newSharedWithUsers, setNewSharedWithUsers] = useState<string[]>([]);
+  const [receiversInfos, setReceiversInfos] = useState<Partial<IUser>[]>([]);
+  const [newReceiversInfos, setNewReceiversInfos] = useState<Partial<IUser>[]>(
+    []
+  );
   const [allUsers, setAllUsers] = useState([]);
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isDisabled, setIsDisabled] = useState(false);
@@ -33,22 +41,25 @@ const SharingFileForm = ({ id, closeModal, refreshData }: any) => {
   };
 
   const addOrRemoveSharedWithUser = (userId: string) => {
-    console.log("In : addOrRemoveSharedWithUser");
     if (isDisabled) return;
     setIsDisabled(true);
 
-    const existingUserId = newSharedWithUsers.find(
-      (userKey) => userId === userKey
+    const existingReceiverInfo = newReceiversInfos.find(
+      (receiverInfo) => userId === receiverInfo._id
     );
 
-    if (existingUserId) {
-      const newList = newSharedWithUsers.filter((userKey) => userId != userKey);
-      setNewSharedWithUsers(newList);
+    if (existingReceiverInfo) {
+      const newList = newReceiversInfos.filter(
+        (receiverInfo) => userId != receiverInfo._id
+      );
+      setNewReceiversInfos(newList);
     } else {
-      setNewSharedWithUsers([...newSharedWithUsers, userId]);
+      const newReceiverInfo: Partial<IUser> = {
+        _id: userId,
+      };
+      setNewReceiversInfos([...newReceiversInfos, newReceiverInfo]);
     }
 
-    console.log("Out : addOrRemoveSharedWithUser");
     setTimeout(() => {
       setIsDisabled(false);
     }, 2000);
@@ -62,10 +73,18 @@ const SharingFileForm = ({ id, closeModal, refreshData }: any) => {
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
+    setIsLoading(true);
+    const receiversIds = newReceiversInfos.map((user) => user._id!);
+
     const res = await updateFileInfo(
       {
         _id: id,
-        sharedWithUsers: newSharedWithUsers,
+        sharing: {
+          sender: currentUser._id,
+          sharingDate: new Date(), // TO DO set it on the server
+          receivers: receiversIds,
+        },
+
         scheduledDate: null,
         alertDate: null,
       },
@@ -75,16 +94,18 @@ const SharingFileForm = ({ id, closeModal, refreshData }: any) => {
     if (res.error) {
       setMessage(res.error);
     } else {
-      setNewSharedWithUsers([]);
+      setNewReceiversInfos([]);
       setMessage("File shared successfully !");
       closeModalAndReload();
     }
+
+    setIsLoading(false);
   };
 
   useEffect(() => {
     const loadFileInfo = async () => {
       if (id) {
-        const fileInfo = await findById(id); // assuming that the sharedWithUsers is populated
+        const fileInfo = await findById(id); // assuming that the receivers field is populated
         const users = await getAllSilmUsers();
         const usersWithoutCurrentUser = users.filter(
           (user: any) => user._id !== currentUser._id
@@ -94,7 +115,11 @@ const SharingFileForm = ({ id, closeModal, refreshData }: any) => {
         setFilteredUsers(usersWithoutCurrentUser);
 
         if (fileInfo) {
-          setSharedWithUsers(fileInfo.sharedWithUsers!);
+          setNewReceiversInfos(
+            fileInfo.sharing ? fileInfo.sharing.receivers : []
+          );
+          setReceiversInfos(fileInfo.sharing ? fileInfo.sharing.receivers : []);
+
           setFileName(fileInfo.name!);
           setFileExtension(fileInfo.extension);
           setIsFolder(fileInfo.isFolder);
@@ -131,20 +156,22 @@ const SharingFileForm = ({ id, closeModal, refreshData }: any) => {
 
         <div className="d-flex flex-column gap-2 p-2">
           <label
-            className="p-1"
+            className="p-1 d-flex justify-content-between"
             style={{ backgroundColor: "#eee", borderRadius: "0px 20px 0 0" }}
           >
-            {getFileFullname(fileName, isFolder, fileExtension)}
+            <span> {getFileFullname(fileName, isFolder, fileExtension)}</span>
+            <span>{sharedDate}</span>
           </label>
 
           <div>
             <label className="form-text">Is shared with :</label>
+
             <div
               className="d-flex flex-column gap-2 p-2"
               style={{ border: "solid 1px #ddd", borderRadius: "5px" }}
             >
-              {sharedWithUsers.length > 0 ? (
-                sharedWithUsers.map((user: any, index) => (
+              {receiversInfos.length > 0 ? (
+                receiversInfos.map((user: any, index) => (
                   <label
                     key={user._id}
                     style={index > 0 ? { borderTop: "solid 1px #eee" } : {}}
@@ -183,7 +210,7 @@ const SharingFileForm = ({ id, closeModal, refreshData }: any) => {
                       id={user._id}
                       label={user.name}
                       checked={
-                        sharedWithUsers.find(
+                        newReceiversInfos.find(
                           (sharedUser: any) => sharedUser._id == user._id
                         )
                           ? true

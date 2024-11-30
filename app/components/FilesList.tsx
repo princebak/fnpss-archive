@@ -3,15 +3,19 @@ import React from "react";
 import Loader from "./Loader";
 import Image from "next/image";
 import {
+  getColor,
   getFileExtensionLogoPath,
   getFileFullname,
   getLastVisitedTimeInterval,
+  getLocalFilePath,
 } from "@/utils/myFunctions";
 import SharingFileModal from "./modal/SharingFileModal";
 import DownloadButton from "./DownloadButton";
 import UpdateFolderModal from "./modal/UpdateFolderModal";
 import UpdateFileModal from "./modal/UpdateFileModal";
 import NoData from "./NoData";
+import FeedbackFileModal from "./modal/FeedbackFileModal";
+import NotificationCirle from "./NotificationCirle";
 
 type FilesListType = {
   title: string;
@@ -48,16 +52,6 @@ const FilesList = ({
   handleDelete,
   handlePageChange,
 }: FilesListType) => {
-  const getColor = (navLink: string) => {
-    return navLink === "Urgents"
-      ? "red"
-      : navLink === "Shared"
-      ? "green"
-      : navLink === "Recents"
-      ? "black"
-      : "#0d6efd";
-  };
-
   const getImageName = (navLink: string) => {
     return navLink === "Urgents"
       ? "alert-w"
@@ -86,19 +80,10 @@ const FilesList = ({
           <Image width={24} height={24} alt="Image" src={sectionImageUrl} />
           <span className="d-flex">
             <label> {title}</label>
-            <sup
-              style={{
-                width: "20px",
-                height: "20px",
-                borderRadius: "50%",
-                border: "solid 1px #eee",
-                color: `${getColor(sectionId)}`,
-                fontWeight: "bold",
-              }}
-              className="d-flex justify-content-center align-items-center"
-            >
-              {totalElements}
-            </sup>
+            <NotificationCirle
+              sectionId={sectionId}
+              totalElements={totalElements}
+            />
           </span>
         </h5>
 
@@ -162,16 +147,13 @@ const FilesList = ({
                   <div className="card-body p-3">
                     <div className="d-flex flex-column gap-1">
                       <div className="d-flex justify-content-between align-items-center">
-                        <a
+                        <Link
                           href="#"
                           style={{
                             width: "50px",
                             height: "50px",
                             cursor: "pointer",
                           }}
-                          onClick={(e) =>
-                            openFileLink(e, file._id!, file.isFolder!)
-                          }
                         >
                           {file.isFolder ? (
                             <i className="bx bxs-folder h1 mb-0 text-warning"></i>
@@ -181,20 +163,34 @@ const FilesList = ({
                               height={100}
                               src={getFileExtensionLogoPath(file.extension!)}
                               alt="Logo"
+                              onClick={(e) =>
+                                openFileLink(
+                                  e,
+                                  file._id!,
+                                  file.isFolder!,
+                                  file.extension
+                                )
+                              }
                             />
                           )}
-                        </a>
+                        </Link>
 
-                        <div className="flex gap-2 justify-content-center">
+                        <div className="flex gap-2 justify-content-center align-items-center">
+                          <FeedbackFileModal
+                            id={file._id}
+                            refreshData={() => setRefreshTime(new Date())}
+                          />
                           <SharingFileModal
                             id={file._id}
                             refreshData={() => setRefreshTime(new Date())}
+                            sectionId={sectionId}
                           />
 
                           {!file.isFolder ? (
                             <DownloadButton
                               fileName={file.name!}
-                              downloadLink={`/api/downloadFile/${file._id}`}
+                              downloadLink={`/api/files/${file._id}?extension=${file.extension}&&download=true`}
+                              extension={file.extension!}
                             />
                           ) : (
                             ""
@@ -203,11 +199,16 @@ const FilesList = ({
                       </div>
                       <div className="d-flex flex-column gap-1">
                         <h5 className="font-size-15 text-truncate">
-                          <a
+                          <Link
                             href="#"
                             className="text-body"
                             onClick={(e) =>
-                              openFileLink(e, file._id!, file.isFolder!)
+                              openFileLink(
+                                e,
+                                file._id!,
+                                file.isFolder!,
+                                file.extension
+                              )
                             }
                           >
                             {getFileFullname(
@@ -215,7 +216,7 @@ const FilesList = ({
                               file.isFolder!,
                               file.extension
                             )}
-                          </a>
+                          </Link>
                         </h5>
                         <div className="d-flex flex-column gap-1">
                           <div className="d-flex justify-content-between">
@@ -236,17 +237,25 @@ const FilesList = ({
 
                             <div className="d-flex gap-2">
                               <Image
+                                title="open"
                                 width={20}
                                 height={20}
                                 src={"/images/forward-arrow.png"}
-                                alt="Delete"
+                                alt="Open"
                                 onClick={(e) =>
-                                  openSubFolder(e, file._id, file.isFolder)
+                                  openSubFolder(
+                                    e,
+                                    file._id,
+                                    file.isFolder,
+                                    file.extension
+                                  )
                                 }
                                 style={{ cursor: "pointer" }}
                               />
-                              {!file.isFolder || file.numberOfContent == 0 ? (
+                              {(!file.isFolder || file.numberOfContent == 0) &&
+                              sectionId != "Received" ? (
                                 <Image
+                                  title="delete"
                                   width={20}
                                   height={20}
                                   src={"/images/delete.png"}
@@ -260,8 +269,10 @@ const FilesList = ({
                                 ""
                               )}
 
-                              <div className="text-muted">
-                                {file.isFolder ? (
+                              <div className="text-muted" title="more">
+                                {sectionId === "Received" ? (
+                                  ""
+                                ) : file.isFolder ? (
                                   <UpdateFolderModal
                                     id={file._id}
                                     refreshData={() =>

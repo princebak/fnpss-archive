@@ -354,3 +354,17 @@ export const getFileFullname = (
   }
   return name;
 };
+
+export const getLocalFilePath = (file: Partial<IMyFile>) => {
+  return `${file._id}.${file.extension}`;
+};
+
+export const getColor = (navLink: string) => {
+  return navLink === "Urgents"
+    ? "red"
+    : navLink === "Shared"
+    ? "green"
+    : navLink === "Recents"
+    ? "black"
+    : "#0d6efd";
+};
