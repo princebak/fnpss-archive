@@ -3,7 +3,7 @@ import React from "react";
 import { changePassword } from "@/services/UserService";
 
 export const metadata = {
-  title: "FMS | Confim reset password",
+  title: "FNPSS Archives | Confim reset password",
 };
 
 const page = () => {

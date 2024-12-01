@@ -3,7 +3,7 @@ import { sendEmailWithEmailJs } from "@/services/NotificationService";
 import React from "react";
 
 export const metadata = {
-  title: "FMS | Validate email",
+  title: "FNPSS Archives | Validate email",
 };
 
 const page = () => {

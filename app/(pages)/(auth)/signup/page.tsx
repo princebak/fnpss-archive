@@ -3,7 +3,7 @@ import { register } from "@/services/UserService";
 import React from "react";
 
 export const metadata = {
-  title: "FMS | Signup",
+  title: "FNPSS Archives | Signup",
 };
 
 const page = () => {

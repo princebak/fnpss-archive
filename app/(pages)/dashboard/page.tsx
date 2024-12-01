@@ -10,7 +10,7 @@ import {
 } from "@/services/MyFileService";
 
 export const metadata = {
-  title: "FMS | Dashboard",
+  title: "FNPSS Archives | Dashboard",
 };
 
 const page = async () => {

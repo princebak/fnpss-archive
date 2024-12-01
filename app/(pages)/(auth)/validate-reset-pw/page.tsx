@@ -3,7 +3,7 @@ import { sendEmailWithEmailJs } from "@/services/NotificationService";
 import React from "react";
 
 export const metadata = {
-  title: "FMS | Validate reset password",
+  title: "FNPSS Archives | Validate reset password",
 };
 
 const page = () => {

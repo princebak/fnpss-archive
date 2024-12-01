@@ -3,7 +3,7 @@ import LoginForm from "../../../components/form/LoginForm";
 import { getUserLastActiveSubscription } from "@/services/SubscriptionService";
 
 export const metadata = {
-  title: "FMS | Login",
+  title: "FNPSS Archives | Login",
 };
 
 const page = () => {

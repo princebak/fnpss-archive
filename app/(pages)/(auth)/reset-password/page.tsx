@@ -3,7 +3,7 @@ import { sendResetPwLink } from "@/services/UserService";
 import React from "react";
 
 export const metadata = {
-  title: "FMS | Reset password",
+  title: "FNPSS Archives | Reset password",
 };
 
 const page = () => {
