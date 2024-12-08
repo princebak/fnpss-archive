@@ -131,6 +131,7 @@ const SharingFileForm = ({
           setFileName(fileInfo.name!);
           setFileExtension(fileInfo.extension);
           setIsFolder(fileInfo.isFolder);
+          setSharingReason(fileInfo.sharing.sharingReason)
         }
       }
     };
@@ -202,6 +203,7 @@ const SharingFileForm = ({
             id={"sharingReason"}
             placeHolder="sharing reason"
             value={sharingReason}
+            required = {true}
             handleChange={(e)=> setSharingReason(e.target.value)}
           />
 

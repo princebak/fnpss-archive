@@ -13,6 +13,7 @@ const FeedbackFileModal = ({ id, refreshData }: any) => {
   const [createdDate, setCreatedDate] = useState("");
   const [sharedDate, setSharedDate] = useState("");
   const [shouldUpdate, setShouldUpdate] = useState(false);
+  const [sharingReason, setSharingReason] = useState("")
 
   const toggleModal = (e: any) => {
     e.preventDefault();
@@ -25,6 +26,7 @@ const FeedbackFileModal = ({ id, refreshData }: any) => {
       const sharing = theFile.sharing;
       if (sharing) {
         setShouldUpdate(true);
+        setSharingReason(sharing.sharingReason)
       }
       setTotalElements(theFile.feedbacks.length);
     };
@@ -91,6 +93,7 @@ const FeedbackFileModal = ({ id, refreshData }: any) => {
                     closeModal={() => setIsOpen(false)}
                     createdDate={createdDate}
                     sharedDate={sharedDate}
+                    sharingReason={sharingReason}
                   />
                 </div>
                 <div className="bg-gray-50 px-4 py-3 sm:px-6 d-flex justify-content-end ">

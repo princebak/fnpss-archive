@@ -13,6 +13,7 @@ import { getDownloadFileUrl } from "./AwsS3Service";
 import mongoose from "mongoose";
 
 export async function saveFileInfo(myFile: IMyFile, shouldUpdateAlert: string) {
+  console.log("INPUT >> ", myFile)
   try {
     await dbConnector();
     if (!myFile.parentFolder) {
@@ -38,7 +39,7 @@ export async function saveFileInfo(myFile: IMyFile, shouldUpdateAlert: string) {
     if (existingFolder) {
       await MyFile.findByIdAndUpdate(myFile.parentFolder, {
         numberOfContent: existingFolder.numberOfContent + 1,
-        size: existingFolder.size + myFile.size,
+        size: existingFolder.size + (myFile.size || 0),
       });
     }
 
@@ -215,14 +216,11 @@ export async function getAllUrgentFiles(userId: string, page: string) {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
-  //TODO Find your own urgent files
   const files = await MyFile.find({
     owner: userId,
     alertDate: today,
     status: { $ne: fileStatus.REMOVED },
   });
-
-  //TODO Find shared urgent files ????
 
   const filesPerPage = getContentWithPagination(files, page, "");
 
@@ -264,8 +262,6 @@ export async function getRecentFiles(userId: string) {
     visited: { $ne: null },
   });
 
-  //TODO Find recent shared files ????
-
   // Desc Sorting
   let visitedA = null;
   let visitedB = null;
@@ -290,7 +286,6 @@ export async function findById(id: string) {
       path: "feedbacks.receiver.type", // Specify the path to populate
       model: "User", // Reference the User model
     });
-  // .populate("feedbacks.receiver");
 
   return dbObjectToJsObject(fileInfo);
 }
@@ -312,10 +307,9 @@ export async function downloadFile(
 }
 
 export async function isUserAllowedToAccessThisFile(user: any, id: string) {
-  // TO DO :
   // 1. find the file from the database using the file id .DONE
-  // 2. return true only if the user is the file owner or is in receivers list
-  // 3. else return false
+  // 2. return true only if the user is the file owner or is in receivers list .DONE
+  // 3. else return false .DONE
   const existingFile: IMyFile | null = await MyFile.findById(id);
 
   if (!existingFile) {
@@ -342,8 +336,6 @@ export async function getFileMetadata(id: string) {
       ? getFormatedDate(fileInfo.sharing.sharingDate, true, true)
       : null,
   };
-
-  console.log(data)
 
   return dbObjectToJsObject(data);
 }

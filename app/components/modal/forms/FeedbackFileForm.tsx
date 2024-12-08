@@ -12,6 +12,7 @@ const FeedbackFileForm = ({
   refreshData,
   createdDate,
   sharedDate,
+  sharingReason
 }: any) => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -81,6 +82,20 @@ const FeedbackFileForm = ({
             <span> {getFileFullname(fileName, isFolder, fileExtension)}</span>
             <span>{sharedDate}</span>
           </label>
+
+          <div>
+            <label className="form-text">Sharing reason :</label>
+
+            <div
+              className="d-flex flex-column gap-2 p-2"
+              style={{ border: "solid 1px #ddd", borderRadius: "5px" }}
+            >
+                <label
+                  >
+                    {sharingReason}
+                </label>
+            </div>
+          </div>
 
           <div>
             <label className="form-text">Feedbacks : </label>
