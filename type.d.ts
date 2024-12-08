@@ -17,7 +17,8 @@ interface IMyFile {
   alertReason?: string?;
   sharing?: {
     sender: string;
-    sharingDate: Date;
+    sharingDate?: Date;
+    sharingReason: string;
     receivers: string[];
   };
   feedbacks?: Partial<FeedbackContent>[];

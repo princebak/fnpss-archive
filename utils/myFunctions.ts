@@ -1,7 +1,7 @@
 import { dbConnector } from "./dbConnector";
 import User from "@/models/User";
 
-import { FileExtensionLogo, PAGE_LIMIT, TOKEN_VALIDITY } from "./constants";
+import { FileExtensionsLogos, PAGE_LIMIT, TOKEN_VALIDITY } from "./constants";
 import { FieldValidationResult } from "@/classes";
 import { equal } from "assert";
 
@@ -99,7 +99,7 @@ export const isTheUserTokenValid = (token: any) => {
 };
 
 export const getFileExtensionLogoPath = (extension: string) => {
-  const pathObj = FileExtensionLogo.find((item: any) =>
+  const pathObj = FileExtensionsLogos.find((item: any) =>
     item.extensions.includes(extension)
   );
   return pathObj ? pathObj.logoUrl : "/images/extensions/default.png";

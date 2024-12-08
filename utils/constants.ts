@@ -73,7 +73,7 @@ export const PAGE_LIMIT = 4;
 
 const extensionsBasePath = "/images/extensions/";
 
-export const FileExtensionLogo = [
+export const FileExtensionsLogos = [
   { logoUrl: `${extensionsBasePath}pdf.png`, extensions: ["pdf"] },
   { logoUrl: `${extensionsBasePath}doc.png`, extensions: ["docx", "doc"] },
   { logoUrl: `${extensionsBasePath}txt.png`, extensions: ["txt"] },

@@ -80,6 +80,17 @@ export async function updateFileInfo(
     await dbConnector();
 
     let uploadedFile: any = { ...myFile };
+    let sharing = myFile.sharing
+
+    if(sharing && !sharing.sharingDate){
+      uploadedFile = {
+        ...uploadedFile,
+        sharing : {
+          ...sharing,
+          sharingDate : new Date()
+        }
+      }
+    }
 
     if (shouldUpdateAlert === true) {
       uploadedFile.alertDate = uploadedFile.alertDate
@@ -150,6 +161,30 @@ export async function addUserFeedback(
 
     return dbObjectToJsObject({
       message: "File FeedbacksChannels updated",
+      data: myFileModel._doc,
+    });
+  } catch (error: any) {
+    console.log("update FeedbacksChannels error >> ", error?.message);
+    return { error: error.message };
+  }
+}
+
+export async function unshareAFile(
+  fileId: string,
+) {
+  try {
+    await dbConnector();
+
+    const myFileModel = await MyFile.findByIdAndUpdate(
+      fileId,
+      { sharing: null },
+      {
+        new: true,
+      }
+    );
+
+    return dbObjectToJsObject({
+      message: "File unshared !",
       data: myFileModel._doc,
     });
   } catch (error: any) {
@@ -305,8 +340,10 @@ export async function getFileMetadata(id: string) {
     createdDate: getFormatedDate(fileInfo.createdAt, true, true),
     sharedDate: fileInfo.sharing
       ? getFormatedDate(fileInfo.sharing.sharingDate, true, true)
-      : "not shared yet",
+      : null,
   };
+
+  console.log(data)
 
   return dbObjectToJsObject(data);
 }

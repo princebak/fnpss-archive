@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import Image from "next/image";
 import SharingFileForm from "./forms/SharingFileForm";
-import { getFileMetadata } from "@/services/MyFileService";
+import { getFileMetadata, unshareAFile } from "@/services/MyFileService";
 
 const SharingFileModal = ({ id, refreshData, sectionId }: any) => {
   const [isOpen, setIsOpen] = useState(false);
@@ -16,6 +16,12 @@ const SharingFileModal = ({ id, refreshData, sectionId }: any) => {
     e.preventDefault();
     setIsOpen(!isOpen);
   };
+
+  const handleFileUnshare = async(e:any, fileId:string)=>{
+    await unshareAFile(fileId)
+    setIsOpen(false)
+    refreshData()
+  }
 
   useEffect(() => {
     if (sectionId != "Received") {
@@ -75,7 +81,22 @@ const SharingFileModal = ({ id, refreshData, sectionId }: any) => {
                     sharedDate={sharedDate}
                   />
                 </div>
-                <div className="bg-gray-50 px-4 py-3 sm:px-6 d-flex justify-content-end ">
+                <div className="bg-gray-50 px-4 py-3 sm:px-6 d-flex justify-content-between ">
+                  <span>
+                  {
+                    sharedDate ? (
+                      <button
+                    type="button"
+                    className="btn btn-warning"
+                    onClick={(e)=>handleFileUnshare(e, id)}
+                  >
+                    Unshare
+                  </button>
+                    ) : ""
+                  }
+                  </span>
+                  
+                  
                   <button
                     type="button"
                     className="btn btn-secondary"

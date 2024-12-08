@@ -67,6 +67,7 @@ const myFileSchema = new Schema<IMyFile>(
       type: {
         sender: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
         sharingDate:{type:Date},
+        sharingReason:{type:String},
         receivers: [
           {
             type: mongoose.Schema.Types.ObjectId,

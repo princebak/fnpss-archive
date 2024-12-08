@@ -6,13 +6,14 @@ import { getFileFullname } from "@/utils/myFunctions";
 import React, { useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import FormSimpleCheckbox from "./FormSimpleCheckbox";
+import FormInput from "../../form/elements/FormInput";
 
 const SharingFileForm = ({
   id,
   closeModal,
   refreshData,
   sharedDate,
-  createdDate,
+  createdDate, // Not used for now
 }: any) => {
   const [isLoading, setIsLoading] = useState(false);
   const [message, setMessage] = useState("");
@@ -27,6 +28,8 @@ const SharingFileForm = ({
   const [filteredUsers, setFilteredUsers] = useState([]);
   const [isDisabled, setIsDisabled] = useState(false);
   const { currentUser } = useSelector((state: any) => state.user);
+
+  const [sharingReason, setSharingReason] = useState("")
 
   const handleUsersFiltering = (value: string) => {
     const regex = new RegExp(value, "i");
@@ -73,6 +76,11 @@ const SharingFileForm = ({
   const handleSubmit = async (e: any) => {
     e.preventDefault();
 
+    if(newReceiversInfos.length < 1){
+      setMessage("You have to select at least one user to share with.")
+      return
+    }
+
     setIsLoading(true);
     const receiversIds = newReceiversInfos.map((user) => user._id!);
 
@@ -81,7 +89,7 @@ const SharingFileForm = ({
         _id: id,
         sharing: {
           sender: currentUser._id,
-          sharingDate: new Date(), // TO DO set it on the server
+          sharingReason:sharingReason,
           receivers: receiversIds,
         },
 
@@ -131,7 +139,7 @@ const SharingFileForm = ({
 
   return (
     <form>
-      {message ? <label>{message}</label> : ""}
+      {message ? <label className="alert alert-info">{message}</label> : ""}
 
       <div
         className="bd-example d-flex flex-column gap-2"
@@ -186,6 +194,16 @@ const SharingFileForm = ({
               )}
             </div>
           </div>
+
+          <FormInput
+            type="text"
+            label="Sharing reason"
+            name={"sharingReason"}
+            id={"sharingReason"}
+            placeHolder="sharing reason"
+            value={sharingReason}
+            handleChange={(e)=> setSharingReason(e.target.value)}
+          />
 
           <div>
             <label className="form-text">Select users to share with : </label>
