@@ -94,7 +94,7 @@ const FileEditAlert = ({
             return;
           }}
         >
-          Add alert
+          Ajouter une alerte
         </span>
       </label>
       {isOnAlert ? (
@@ -108,8 +108,8 @@ const FileEditAlert = ({
         >
           <FormInput
             type="date"
-            label="Scheduled Date"
-            title="Scheduled Date"
+            label="Date prévue"
+            title="Date prévue"
             name="scheduled_date"
             component={
               <DatePicker
@@ -122,8 +122,8 @@ const FileEditAlert = ({
 
           <FormInput
             type="date"
-            label="Alert Date"
-            title="Alert Date"
+            label="Date d'alerte"
+            title="Date d'alerte"
             id="alert_date"
             name="alert_date"
             component={
@@ -136,12 +136,12 @@ const FileEditAlert = ({
           />
 
           <FormInput
-            label="Alert Reason"
-            title="Alert Reason"
+            label="Raison de l'alerte"
+            title="Raison de l'alerte"
             type="text"
             id="alert_reason"
             name="alert_reason"
-            placeHolder="Enter the alert reason"
+            placeHolder="Saisir le motif de l'alerte"
             value={alertReason}
             handleChange={(e: any) => setAlertReason(e.target.value)}
             required

@@ -80,7 +80,7 @@ const EditUserModal = () => {
             style={{ cursor: "pointer" }}
             onClick={() => router.push("/login")}
           >
-            {"Login"}
+            {"Connexion"}
           </span>
         )}
 
@@ -106,7 +106,7 @@ const EditUserModal = () => {
                     router.push("/dashboard");
                   }}
                 >
-                  Dashboard
+                  {"Tableau de bord"}
                 </button>
 
                 <button
@@ -114,7 +114,7 @@ const EditUserModal = () => {
                   className="btn btn-secondary"
                   onClick={toggleModal}
                 >
-                  Close
+                  {"Fermer"}
                 </button>
               </div>
             </div>

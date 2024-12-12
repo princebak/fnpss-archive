@@ -27,11 +27,10 @@ const HomePage = () => {
             </div>
             <div className="text-center">
               <h1 className="text-4xl font-bold tracking-tight text-gray-900 sm:text-6xl">
-                Tous les fichiers FNPSS sont gérés ici
+                {"Tous les fichiers FNPSS sont gérés ici"}
               </h1>
               <p className="mt-6 text-lg leading-8 text-gray-600">
-                A partir de ce portail FNPSS, vous pouvez télécharger des
-                fichiers, partager des fichiers et plus encore...
+                {"A partir de ce portail FNPSS, vous pouvez télécharger des fichiers, partager des fichiers et plus encore..."}
               </p>
               <div className="mt-10 flex items-center justify-center gap-x-6">
                 <a

@@ -29,7 +29,7 @@ const ResetPasswordForm = ({ sendResetPwLink }: any) => {
     }
   };
   return (
-    <FormWrapper formLabel="Reset password" handleSubmit={handleSubmit}>
+    <FormWrapper formLabel="Réinitialiser le mot de passe" handleSubmit={handleSubmit}>
       {message && (
         <AlertMessage content={message.content} color={message?.color} />
       )}
@@ -37,24 +37,24 @@ const ResetPasswordForm = ({ sendResetPwLink }: any) => {
         id={"email"}
         name={"email"}
         type="email"
-        label="Email address"
+        label="Adresse E-mail"
         required
         value={email}
         handleChange={(e) => setEmail(e.target.value)}
       />
 
-      <FormSubmitButton label="Submit" isLoading={isLoading} />
+      <FormSubmitButton label="Soumettre" isLoading={isLoading} />
 
       <Footer>
         <FooterElement
-          firstText="Don't have an account"
-          secondText="signup"
+          firstText="Vous n'avez pas de compte"
+          secondText="s'inscrire"
           isborderTop={true}
           link="/signup"
         />
         <FooterElement
-          firstText="Password remembered "
-          secondText="login"
+          firstText="Vous souvenez-vous de votre mot de passe"
+          secondText="se connecter"
           link="/login"
         />
       </Footer>

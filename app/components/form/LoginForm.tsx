@@ -97,7 +97,7 @@ const LoginForm = ({ getUserLastActiveSubscription }: any) => {
   };
 
   return (
-    <FormWrapper formLabel="Login" handleSubmit={handleSubmit}>
+    <FormWrapper formLabel="Se connecter" handleSubmit={handleSubmit}>
       {message && (
         <AlertMessage content={message?.content} color={message?.color} />
       )}
@@ -112,7 +112,7 @@ const LoginForm = ({ getUserLastActiveSubscription }: any) => {
         id={"email"}
         name={"email"}
         type="email"
-        label="Email address"
+        label="Adresse e-mail"
         value={form.email}
         handleChange={handleChange}
         required
@@ -121,24 +121,24 @@ const LoginForm = ({ getUserLastActiveSubscription }: any) => {
         id={"password"}
         name={"password"}
         type="password"
-        label="Password"
+        label="Mot de passe"
         value={form.password}
         handleChange={handleChange}
         required
       />
 
-      <FormSubmitButton label="Submit" isLoading={isLoading} />
+      <FormSubmitButton label="Soumettre" isLoading={isLoading} />
 
       <Footer>
         <FooterElement
-          firstText="Don't have an account"
-          secondText="signup"
+          firstText="Vous n'avez pas de compte"
+          secondText="s'inscrire"
           isborderTop={true}
           link="/signup"
         />
         <FooterElement
-          firstText="Password forgotten "
-          secondText="reset it"
+          firstText="Mot de passe oublié"
+          secondText="réinitialiser le"
           link="/reset-password"
         />
       </Footer>

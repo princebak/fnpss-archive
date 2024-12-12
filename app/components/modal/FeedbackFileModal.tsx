@@ -50,7 +50,7 @@ const FeedbackFileModal = ({ id, refreshData }: any) => {
       <>
         <div
           className="d-flex"
-          title="feedback"
+          title="réaction"
           onClick={toggleModal}
           style={{ cursor: "pointer" }}
         >
@@ -58,7 +58,7 @@ const FeedbackFileModal = ({ id, refreshData }: any) => {
             width={24}
             height={24}
             src={"/images/feedback.png"}
-            alt="feedback"
+            alt="réaction"
             id={id}
           />
           <NotificationCirle
@@ -102,7 +102,7 @@ const FeedbackFileModal = ({ id, refreshData }: any) => {
                     className="btn btn-secondary"
                     onClick={toggleModal}
                   >
-                    Close
+                    {"Fermer"}
                   </button>
                 </div>
               </div>

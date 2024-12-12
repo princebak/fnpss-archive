@@ -55,14 +55,14 @@ const CreateFolderForm = ({
         setMessage({
           ...message,
           content:
-            "The alert date can't be after the scheduled date, please to correct it.",
+            "La date d'alerte ne peut pas être postérieure à la date prévue, veuillez la corriger.",
         });
         setIsLoading(false);
         return;
       } else if (alertDate && !alertReason) {
         setMessage({
           ...message,
-          content: "The alert reason is mandatory.",
+          content: "Le motif de l'alerte est obligatoire.",
         });
         setIsLoading(false);
         return;
@@ -81,7 +81,7 @@ const CreateFolderForm = ({
         );
         if (res.error) {
           console.log("Error >>  ", res.error);
-          setMessage({ ...message, content: "Bad request." });
+          setMessage({ ...message, content: "Mauvaise requête." });
         } else {
           setMessage({
             content: "Folder uploaded successfully !",
@@ -98,7 +98,7 @@ const CreateFolderForm = ({
         });
 
         if (res.error) {
-          setMessage({ ...message, content: "Bad request." });
+          setMessage({ ...message, content: "Mauvaise requête." });
         } else {
           setMessage({
             content: "Folder updated with success !!",
@@ -110,7 +110,7 @@ const CreateFolderForm = ({
     } else {
       setMessage({
         ...message,
-        content: "A Folder should have a display name.",
+        content: "Un dossier doit avoir un nom d'affichage.",
       });
     }
 
@@ -157,14 +157,14 @@ const CreateFolderForm = ({
           className="d-flex justify-between p-2"
           style={{ borderBottom: "solid 1px #ddd" }}
         >
-          <label style={{ color: "black" }}>Edit Folder</label>
+          <label style={{ color: "black" }}>{"Modifier le dossier"}</label>
 
           {isLoading ? (
-            <label>Loading...</label>
+            <label>Chargement...</label>
           ) : (
             <div className="d-flex justify-content-between gap-2">
               <button className="btn btn-primary" onClick={handleSubmit}>
-                Save
+              Enregistrer
               </button>
             </div>
           )}
@@ -175,7 +175,7 @@ const CreateFolderForm = ({
             type="text"
             className="form-control"
             id="exampleFormControlInput1"
-            placeholder="Enter Folder name"
+            placeholder="Entrer le nom du dossier"
             required
             value={name}
             onChange={(e) => setName(e.target.value)}

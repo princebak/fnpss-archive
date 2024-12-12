@@ -41,7 +41,7 @@ const SignupForm = ({ register }: any) => {
       } else {
         setMessage({
           content:
-            "Registered with success, please click on the confirmation link sent in your mail box !",
+            "Enregistré avec succès",
           color: "alert-success",
         });
         setForm(initialValues);
@@ -62,7 +62,7 @@ const SignupForm = ({ register }: any) => {
   };
 
   return (
-    <FormWrapper formLabel="Signup" handleSubmit={handleSubmit}>
+    <FormWrapper formLabel="S'inscrire" handleSubmit={handleSubmit}>
       {message && (
         <AlertMessage content={message.content} color={message?.color} />
       )}
@@ -70,9 +70,9 @@ const SignupForm = ({ register }: any) => {
         id={"name"}
         name={"name"}
         type="text"
-        label="Full name"
+        label="Nom complet"
         placeHolder="Prince Bakenga"
-        title="Full name"
+        title="Nom complet"
         value={form.name}
         handleChange={handleChange}
       />
@@ -80,8 +80,8 @@ const SignupForm = ({ register }: any) => {
         id={"email"}
         name={"email"}
         type="email"
-        label="Email address"
-        title="Email address"
+        label="Adresse e-mail"
+        title="Adresse e-mail"
         value={form.email}
         handleChange={handleChange}
       />
@@ -90,8 +90,8 @@ const SignupForm = ({ register }: any) => {
         id={"phone"}
         name={"phone"}
         type="tel"
-        label="Phone number"
-        title="Phone number"
+        label="Numéro de téléphone"
+        title="Numéro de téléphone"
         value={form.phone}
         handleChange={handleChange}
       />
@@ -100,8 +100,8 @@ const SignupForm = ({ register }: any) => {
         id={"password"}
         name={"password"}
         type="password"
-        label="Password"
-        title="Password"
+        label="Mot de passe"
+        title="Mot de passe"
         value={form.password}
         handleChange={handleChange}
       />
@@ -109,18 +109,18 @@ const SignupForm = ({ register }: any) => {
         id={"confirmPassword"}
         name={"confirmPassword"}
         type="password"
-        label="Confirm password"
-        title="Confirm password"
+        label="Confirmer le mot de passe"
+        title="Confirmer le mot de passe"
         value={form.confirmPassword}
         handleChange={handleChange}
       />
 
-      <FormSubmitButton label="Submit" isLoading={isLoading} />
+      <FormSubmitButton label="Soumettre" isLoading={isLoading} />
 
       <Footer>
         <FooterElement
-          firstText="Password remembered "
-          secondText="login"
+          firstText="Vous souvenez-vous de votre mot de passe"
+          secondText="se connecter"
           link="/login"
           isborderTop={true}
         />

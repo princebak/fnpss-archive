@@ -50,7 +50,7 @@ const UpdateFileModal = ({ id, refreshData, getFolders }: any) => {
                   className="btn btn-secondary"
                   onClick={toggleModal}
                 >
-                  Close
+                  {"Fermer"}
                 </button>
               </div>
             </div>

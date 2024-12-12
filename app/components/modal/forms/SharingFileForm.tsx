@@ -131,7 +131,7 @@ const SharingFileForm = ({
           setFileName(fileInfo.name!);
           setFileExtension(fileInfo.extension);
           setIsFolder(fileInfo.isFolder);
-          setSharingReason(fileInfo.sharing.sharingReason)
+          setSharingReason(fileInfo.sharing ? fileInfo.sharing.sharingReason : "")
         }
       }
     };
@@ -150,14 +150,14 @@ const SharingFileForm = ({
           className="d-flex justify-between flex-wrap p-2"
           style={{ borderBottom: "solid 1px #ddd" }}
         >
-          <label style={{ color: "black" }}>Sharing File</label>
+          <label style={{ color: "black" }}>Partager le dossier</label>
 
           {isLoading ? (
-            <label>Loading...</label>
+            <label>Chargement...</label>
           ) : (
             <div className="d-flex justify-content-between gap-2">
               <button onClick={handleSubmit} className="btn btn-primary">
-                Save
+                Valider
               </button>
             </div>
           )}
@@ -173,7 +173,7 @@ const SharingFileForm = ({
           </label>
 
           <div>
-            <label className="form-text">Is shared with :</label>
+            <label className="form-text">{"Est partagé avec :"}</label>
 
             <div
               className="d-flex flex-column gap-2 p-2"
@@ -190,7 +190,7 @@ const SharingFileForm = ({
                 ))
               ) : (
                 <label className="alert alert-info mb-0">
-                  Not yet shared !
+                  {"Pas encore partagé !"}
                 </label>
               )}
             </div>
@@ -198,24 +198,24 @@ const SharingFileForm = ({
 
           <FormInput
             type="text"
-            label="Sharing reason"
+            label="Raison du partage"
             name={"sharingReason"}
             id={"sharingReason"}
-            placeHolder="sharing reason"
+            placeHolder="raison du partage"
             value={sharingReason}
             required = {true}
             handleChange={(e)=> setSharingReason(e.target.value)}
           />
 
           <div>
-            <label className="form-text">Select users to share with : </label>
+            <label className="form-text">{"Sélectionner les utilisateurs avec lesquels partager :"} </label>
             <div
               className="d-flex flex-column gap-2 p-2"
               style={{ border: "solid 1px #ddd", borderRadius: "5px" }}
             >
               <input
                 type="text"
-                placeholder="search user"
+                placeholder="recherche d'utilisateur"
                 className="form-control"
                 onChange={(e) => handleUsersFiltering(e.target.value)}
               />

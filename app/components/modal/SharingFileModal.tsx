@@ -46,11 +46,11 @@ const SharingFileModal = ({ id, refreshData, sectionId }: any) => {
           width={32}
           height={32}
           src={"/images/sharing.png"}
-          alt="sharing"
+          alt="partage"
           id={id}
           onClick={toggleModal}
           style={{ cursor: "pointer" }}
-          title="share"
+          title="partager"
         />
 
         {isOpen && (
@@ -90,19 +90,18 @@ const SharingFileModal = ({ id, refreshData, sectionId }: any) => {
                     className="btn btn-warning"
                     onClick={(e)=>handleFileUnshare(e, id)}
                   >
-                    Unshare
+                    {"Annuler le partage"}
                   </button>
                     ) : ""
                   }
                   </span>
-                  
                   
                   <button
                     type="button"
                     className="btn btn-secondary"
                     onClick={toggleModal}
                   >
-                    Close
+                    {"Fermer"}
                   </button>
                 </div>
               </div>

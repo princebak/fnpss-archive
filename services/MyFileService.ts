@@ -13,7 +13,6 @@ import { getDownloadFileUrl } from "./AwsS3Service";
 import mongoose from "mongoose";
 
 export async function saveFileInfo(myFile: IMyFile, shouldUpdateAlert: string) {
-  console.log("INPUT >> ", myFile)
   try {
     await dbConnector();
     if (!myFile.parentFolder) {

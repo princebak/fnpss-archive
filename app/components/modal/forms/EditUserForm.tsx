@@ -81,7 +81,6 @@ const EditUserForm = ({ closeModal }: any) => {
   };
 
   useEffect(() => {
-    console.log("currentUser OK > ", currentUser);
     if (currentUserUpdated) {
       dispatch(loginSuccess(currentUser));
       closeModal();
@@ -121,17 +120,17 @@ const EditUserForm = ({ closeModal }: any) => {
       onSubmit={handleSubmit}
     >
       <div
-        className="d-flex justify-between p-2"
+        className="d-flex justify-content-between align-items-center gap-1 p-2"
         style={{ borderBottom: "solid 1px #ddd" }}
       >
-        <label style={{ color: "black" }}>Edit user Info</label>
+        <label style={{ color: "black" }}> Modifier les infos</label>
 
-        <div style={{ color: "gray" }}>
+        <div className="shrink-0" style={{ color: "gray" }}>
           {isLoading ? (
             <Loader />
           ) : (
             <button type="submit" className="btn btn-primary">
-              Update
+              {"Mise à jour"}
             </button>
           )}
         </div>
@@ -154,7 +153,7 @@ const EditUserForm = ({ closeModal }: any) => {
           type="text"
           className="form-control"
           id="name"
-          placeholder="Enter your name"
+          placeholder="Entrez votre nom"
           name="name"
           required
           value={form.name}
@@ -165,7 +164,7 @@ const EditUserForm = ({ closeModal }: any) => {
           type="text"
           className="form-control"
           id="phone"
-          placeholder="Enter your phone"
+          placeholder="Entrez votre téléphone"
           name="phone"
           required
           value={form.phone}
@@ -176,7 +175,7 @@ const EditUserForm = ({ closeModal }: any) => {
           rows={3}
           className="form-control"
           id="address"
-          placeholder="Enter your address"
+          placeholder="Entrez votre adresse"
           name="address"
           required
           value={form.address}

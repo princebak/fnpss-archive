@@ -64,7 +64,7 @@ const ConfimResetPwForm = ({ changePassword }: any) => {
       )}
 
       <FormInput
-        label="Password"
+        label="Mot de passe"
         type="password"
         id="password"
         name="password"
@@ -73,7 +73,7 @@ const ConfimResetPwForm = ({ changePassword }: any) => {
         handleChange={handleChange}
       />
       <FormInput
-        label="Confirm password"
+        label="Confirmer le mot de passe"
         type="password"
         id="confirmPassword"
         name="confirmPassword"
@@ -82,12 +82,12 @@ const ConfimResetPwForm = ({ changePassword }: any) => {
         handleChange={handleChange}
       />
 
-      <FormSubmitButton label="Submit" isLoading={isLoading} />
+      <FormSubmitButton label="Soumettre" isLoading={isLoading} />
 
       <Footer>
         <FooterElement
-          firstText="Password remembered"
-          secondText="login"
+          firstText="Vous souvenez-vous de votre mot de passe"
+          secondText="se connecter"
           isborderTop={true}
           link="/login"
         />

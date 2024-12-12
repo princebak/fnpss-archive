@@ -11,7 +11,7 @@ const CreateFileModal = ({ refreshData, userFolderId }: any) => {
 
   const accordionItems = [
     {
-      title: "New File",
+      title: "Nouveau fichier",
       content: (
         <CreateFileForm
           closeModal={() => {
@@ -23,7 +23,7 @@ const CreateFileModal = ({ refreshData, userFolderId }: any) => {
       ),
     },
     {
-      title: "New Folder",
+      title: "Nouveau dossier",
       content: (
         <CreateFolderForm
           closeModal={() => {
@@ -45,10 +45,10 @@ const CreateFileModal = ({ refreshData, userFolderId }: any) => {
     <>
       <button className="btn btn-primary d-flex gap-1" onClick={toggleModal}>
         <div style={{ width: "25px", cursor: "pointer" }}>
-          <Image src="/images/add.png" width={100} height={100} alt="add" />
+          <Image src="/images/add.png" width={100} height={100} alt="ajouter" />
         </div>
 
-        <label style={{ cursor: "pointer" }}>Create new</label>
+        <label style={{ cursor: "pointer" }}>{"Créer un nouveau"}</label>
       </button>
 
       {isOpen && (
@@ -67,7 +67,7 @@ const CreateFileModal = ({ refreshData, userFolderId }: any) => {
                   className="btn btn-secondary"
                   onClick={toggleModal}
                 >
-                  Close
+                  {"Close"}
                 </button>
               </div>
             </div>

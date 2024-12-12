@@ -121,7 +121,7 @@ const FilesList = ({
               openSubFolder(e, currentUserId, true);
             }}
           >
-            {"root >"}
+            {"Dossier racine >"}
           </Link>
         </h6>
       ) : (
@@ -310,7 +310,7 @@ const FilesList = ({
                       handlePageChange(e, Number.parseInt(page) - 1);
                     }}
                   >
-                    Previous
+                    {"Précédent"}
                   </a>
                 </li>
                 {pages?.map((p: any) => (
@@ -335,7 +335,7 @@ const FilesList = ({
                       handlePageChange(e, Number.parseInt(page) + 1);
                     }}
                   >
-                    Next
+                    {"Suivant"}
                   </a>
                 </li>
               </ul>

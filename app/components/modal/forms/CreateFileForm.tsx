@@ -44,7 +44,7 @@ const CreateFileForm = ({ id, closeModal, refreshData, userFolderId }: any) => {
             setMessage({
               ...message,
               content:
-                "The alert date can't be after the scheduled date, please to correct it.",
+                "La date d'alerte ne peut pas être postérieure à la date prévue, veuillez la corriger.",
             });
             setIsLoading(false);
             return;
@@ -87,12 +87,12 @@ const CreateFileForm = ({ id, closeModal, refreshData, userFolderId }: any) => {
             setMessage({
               ...message,
               content:
-                "The alert date can't be after the scheduled date, please to correct it.",
+                "La date d'alerte ne peut pas être postérieure à la date prévue, veuillez la corriger.",
             });
           } else if (alertDate && !alertReason) {
             setMessage({
               ...message,
-              content: "The alert reason is mandatory.",
+              content: "Le motif de l'alerte est obligatoire.",
             });
             setIsLoading(false);
             return;
@@ -110,7 +110,7 @@ const CreateFileForm = ({ id, closeModal, refreshData, userFolderId }: any) => {
               true
             );
             if (res.error) {
-              setMessage({ ...message, content: "Bad request." });
+              setMessage({ ...message, content: "Mauvaise requête." });
             } else {
               setMessage({
                 content: "File renamed with success !!",
@@ -120,13 +120,13 @@ const CreateFileForm = ({ id, closeModal, refreshData, userFolderId }: any) => {
             }
           }
         } else {
-          setMessage({ ...message, content: "Please to upload a file !" });
+          setMessage({ ...message, content: "Veuillez télécharger un fichier !" });
         }
       }
 
       setIsLoading(false);
     } else {
-      setMessage({ ...message, content: "A file should have a display name." });
+      setMessage({ ...message, content: "Un fichier doit avoir un nom d'affichage." });
     }
   };
 
@@ -175,14 +175,14 @@ const CreateFileForm = ({ id, closeModal, refreshData, userFolderId }: any) => {
           className="d-flex justify-between flex-wrap p-2"
           style={{ borderBottom: "solid 1px #ddd" }}
         >
-          <label style={{ color: "black" }}>Edit File</label>
+          <label style={{ color: "black" }}>{"Modifier le fichier"}</label>
 
           {isLoading ? (
-            <label>Loading...</label>
+            <label>Chargement...</label>
           ) : (
             <div className="d-flex justify-content-between gap-2">
               <button onClick={handleSubmit} className="btn btn-primary">
-                Save
+                Enregistrer
               </button>
             </div>
           )}
@@ -208,7 +208,7 @@ const CreateFileForm = ({ id, closeModal, refreshData, userFolderId }: any) => {
             type="text"
             className="form-control"
             id="exampleFormControlInput1"
-            placeholder="Rename the file here"
+            placeholder="Renommez le fichier ici"
             value={name}
             onChange={(e) =>
               setName(getFileNameWithoutExtension(e.target.value))

@@ -37,23 +37,23 @@ const ValidateResetPwForm = ({ sendEmailWithEmailJs }: any) => {
   };
 
   return (
-    <FormWrapper formLabel="Validate reset password">
+    <FormWrapper formLabel="Validation de la réinitialisation">
       {message && (
         <AlertMessage content={message.content} color={message?.color} />
       )}
       <label className="form-text">
+
         <p>
-          Click on the <em>reset paswword</em> validation link sent in your mail
-          box;
+        {"Cliquez sur le lien de réinitialisation de mot de passe envoyé dans votre boîte aux lettres ;"}
         </p>
       </label>
       <label className="form-text" style={{ borderTop: "solid 1px #ddd" }}>
-        {"Link not received ?"}{" "}
+        {"Lien non reçu ?"}{" "}
         {isLoading ? (
           <Loader />
         ) : (
           <Link type="submit" href={"#"} onClick={handleResendValidationCode}>
-            resend it
+            {"Renvoyez-le"}
           </Link>
         )}
       </label>

@@ -71,7 +71,7 @@ const FeedbackFileForm = ({
           className="d-flex justify-between flex-wrap p-2"
           style={{ borderBottom: "solid 1px #ddd" }}
         >
-          <label style={{ color: "black" }}>Feedback File</label>
+          <label style={{ color: "black" }}>{"Réactions du Fichier"}</label>
         </div>
 
         <div className="d-flex flex-column gap-2 p-2">
@@ -84,7 +84,7 @@ const FeedbackFileForm = ({
           </label>
 
           <div>
-            <label className="form-text">Sharing reason :</label>
+            <label className="form-text">Raison du partage :</label>
 
             <div
               className="d-flex flex-column gap-2 p-2"
@@ -98,7 +98,7 @@ const FeedbackFileForm = ({
           </div>
 
           <div>
-            <label className="form-text">Feedbacks : </label>
+            <label className="form-text">{"Réactions :"}</label>
             <div
               className="d-flex flex-column gap-2 p-2"
               style={{ border: "solid 1px #ddd", borderRadius: "5px" }}
@@ -106,18 +106,18 @@ const FeedbackFileForm = ({
               <div className="d-flex gap-2">
                 <input
                   type="text"
-                  placeholder="feedback here"
+                  placeholder="réagir ici"
                   className="form-control"
                   value={feedbackMessage}
                   onChange={(e) => setFeedbackMessage(e.target.value)}
                 />
 
                 {isLoading ? (
-                  <label>Loading...</label>
+                  <label>Chargement...</label>
                 ) : (
                   <div className="d-flex justify-content-between gap-2">
                     <button onClick={handleSubmit} className="btn btn-primary">
-                      Save
+                      Valider
                     </button>
                   </div>
                 )}

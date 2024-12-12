@@ -109,7 +109,7 @@ export const getLastVisitedTimeInterval = (
   lastVisitedDateTime: Date | undefined | null
 ) => {
   if (!lastVisitedDateTime) {
-    return "Not yet opened";
+    return "Pas encore ouvert";
   }
   const currentDateTime = new Date();
   const lastVisitedDateTimeGood = new Date(lastVisitedDateTime);
@@ -118,26 +118,26 @@ export const getLastVisitedTimeInterval = (
   );
 
   if (secondes < 60) {
-    return `${secondes} s ago`;
+    return `Il y a ${secondes} s`;
   } else {
     const munites = Math.round(secondes / 60);
     if (munites < 60) {
-      return `${munites} m ago`;
+      return `Il y a ${munites} m`;
     } else {
       const hours = Math.round(munites / 60);
       if (hours < 24) {
-        return `${hours} h ago`;
+        return `Il y a ${hours} h`;
       } else {
         const days = Math.round(hours / 24);
         if (days < 30) {
-          return `${days} d ago`;
+          return `Il y a ${days} j`;
         } else {
           const months = Math.round(days / 30);
           if (months < 12) {
-            return `${months} M ago`;
+            return `Il y a ${months} M`;
           } else {
             const years = Math.round(months / 12);
-            return `${years} Y ago`;
+            return `Il y a ${years} A`;
           }
         }
       }

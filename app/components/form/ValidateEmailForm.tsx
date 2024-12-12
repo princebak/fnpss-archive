@@ -23,18 +23,18 @@ const ValidateEmailForm = ({ sendEmailWithEmailJs }: any) => {
   };
 
   return (
-    <FormWrapper formLabel="Validate Email">
+    <FormWrapper formLabel="Validation d'E-mail">
       <label className="form-text">
         <p>
-          Click on the <em>email</em> validation link sent in your mail box;
+         {"Cliquez sur le lien de validation envoyé dans votre boîte aux lettres ;"}
         </p>
       </label>
       {isLoading ? (
         <Loader />
       ) : (
         <FooterElement
-          firstText="Link not received"
-          secondText="resend it"
+          firstText="Lien non reçu"
+          secondText="Renvoyez-le"
           isborderTop={true}
           onClick={handleResendValidationCode}
         />

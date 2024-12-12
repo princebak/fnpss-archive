@@ -101,14 +101,14 @@ export default function DashboardPage({
 
   const handleDelete = async (id: string, name: string) => {
     const confirmDelete = confirm(
-      "Do you realy want to delete this item : " + name
+      "Souhaitez-vous vraiment supprimer cet élément ? " + name
     );
     if (confirmDelete) {
       const res = await updateFileInfo({ _id: id, status: fileStatus.REMOVED });
       if (res.error) {
-        alert("Bad request.");
+        alert("Mauvaise requête.");
       } else {
-        alert("File deleted sucessfully !!");
+        alert("Fichier supprimé avec succès !");
       }
     }
 
@@ -303,7 +303,7 @@ export default function DashboardPage({
         <input
           type="text"
           className="form-control bg-light border-light rounded"
-          placeholder="Search..."
+          placeholder="Recherche..."
           onChange={handleSearch}
           style={{ minWidth: "300px", maxWidth: "600px" }}
         />
@@ -316,7 +316,7 @@ export default function DashboardPage({
 
       {/* All files */}
       <FilesList
-        title={"All files"}
+        title={"Tous les fichiers"}
         sectionId={"All"}
         sectionImageUrl={"/images/all.png"}
         navigationLinks={["Urgents", "Shared", "Recents"]}
@@ -335,7 +335,7 @@ export default function DashboardPage({
 
       {/* Urgent files */}
       <FilesList
-        title={"Urgent files"}
+        title={"Fichiers urgents"}
         sectionId={"Urgents"}
         sectionImageUrl={"/images/alert.png"}
         navigationLinks={["All", "Shared", "Recents"]}
@@ -354,7 +354,7 @@ export default function DashboardPage({
 
       {/* Received files */}
       <FilesList
-        title={"Received files"}
+        title={"Fichiers reçus"}
         sectionId={"Received"}
         sectionImageUrl={"/images/sharing.png"}
         navigationLinks={["All", "Urgents", "Recents"]}
@@ -373,7 +373,7 @@ export default function DashboardPage({
 
       {/* Shared files */}
       <FilesList
-        title={"Shared files"}
+        title={"Fichiers partagés"}
         sectionId={"Shared"}
         sectionImageUrl={"/images/sharing.png"}
         navigationLinks={["All", "Urgents", "Recents"]}
@@ -394,7 +394,7 @@ export default function DashboardPage({
 
       <div className="d-flex flex-wrap mt-3">
         <h5 className="d-flex gap-2 font-size-16 me-3 mb-0" id={"Recents"}>
-          <span>Recently Opened</span>
+          <span>{"Récemment ouvert"}</span>
           <Image
             width={24}
             height={24}
@@ -415,11 +415,11 @@ export default function DashboardPage({
           <table className="table align-middle table-nowrap table-hover mb-0">
             <thead className="table-light">
               <tr>
-                <th scope="col">Name</th>
-                <th scope="col">Visited date</th>
-                <th scope="col">Size</th>
-                <th scope="col">Download</th>
-                <th scope="col">More</th>
+                <th scope="col">Nom</th>
+                <th scope="col">{"Dernière visite le"}</th>
+                <th scope="col">Taille</th>
+                <th scope="col">{"Télécharger"}</th>
+                <th scope="col">Plus</th>
               </tr>
             </thead>
             <tbody>

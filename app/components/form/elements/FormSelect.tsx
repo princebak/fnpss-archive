@@ -15,9 +15,9 @@ const FormSelect = ({
           onChange={(e: any) => setParentFolder(e.target.value)}
         >
           <option value={userId} disabled>
-            Select a folder
+          {"Sélectionner un dossier"}
           </option>
-          <option value={userId}>Root folder</option>
+          <option value={userId}>{"Dossier racine"}</option>
           {folders?.map((folder: any) => (
             <option key={folder._id} value={folder._id}>
               {folder.name}
@@ -26,8 +26,7 @@ const FormSelect = ({
         </select>
       ) : (
         <p className="alert alert-info mb-0">
-          The folder list will be shown here, you are seeing the message because
-          there is no folder yet.
+          {"La liste des dossiers s'affiche ici, vous voyez ce message parce qu'il n'y a pas encore de dossier."}
         </p>
       )}
     </React.Fragment>

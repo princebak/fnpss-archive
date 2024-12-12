@@ -47,7 +47,7 @@ const UpdateFolderModal = ({ id, refreshData }: any) => {
                   className="btn btn-secondary"
                   onClick={toggleModal}
                 >
-                  Close
+                  {"Fermer"}
                 </button>
               </div>
             </div>
