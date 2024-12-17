@@ -44,6 +44,7 @@ export async function register(data: RegisterPayload) {
 
     const goodData = {
       ...data,
+      status: userStatus.ACTIVE,
       password: hashedPassword,
     };
     const newUser = new User(goodData);

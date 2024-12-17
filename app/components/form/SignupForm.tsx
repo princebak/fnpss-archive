@@ -29,6 +29,13 @@ const SignupForm = ({ register }: any) => {
   const [form, setForm] = useState(initialValues);
   const dispatch = useDispatch();
 
+  const PASSWORD_INITIAT_STATE = {
+    type: "password",
+    iconPath: "/images/eye_closed.png",
+  };
+  const [pwInput1, setPwInput1] = useState(PASSWORD_INITIAT_STATE);
+  const [pwInput2, setPwInput2] = useState(PASSWORD_INITIAT_STATE);
+
   const handleSubmit = async (e: any) => {
     e.preventDefault();
     if (!isLoading) {
@@ -40,17 +47,16 @@ const SignupForm = ({ register }: any) => {
         setMessage({ content: res.error, color: "alert-danger" });
       } else {
         setMessage({
-          content:
-            "Enregistré avec succès",
+          content: "Enregistré avec succès",
           color: "alert-success",
         });
         setForm(initialValues);
         /*We save the registered user in local storage
-          to use it for the resend email request on the validate-email
+          to use it for the resend email request on the validate-email || The validate-email is removed
         */
-        dispatch(updateJustRegisteredUser(res)); // when success, the response is the registered user
+        dispatch(updateJustRegisteredUser(res)); // when success, the response is the registered user || TODO: rechecck the usability of this line
         setInterval(() => {
-          router.push("/validate-email");
+          router.push("/login?actived=true");
         }, 3000);
       }
       setIsLoading(false);
@@ -59,6 +65,28 @@ const SignupForm = ({ register }: any) => {
 
   const handleChange = (e: any) => {
     setForm({ ...form, [e.target.name]: e.target.value });
+  };
+
+  const tooglePassword1Visibility = () => {
+    if (pwInput1.type == "password") {
+      setPwInput1({
+        type: "text",
+        iconPath: "/images/eye_opened.png",
+      });
+    } else {
+      setPwInput1(PASSWORD_INITIAT_STATE);
+    }
+  };
+
+  const tooglePassword2Visibility = () => {
+    if (pwInput2.type == "password") {
+      setPwInput2({
+        type: "text",
+        iconPath: "/images/eye_opened.png",
+      });
+    } else {
+      setPwInput2(PASSWORD_INITIAT_STATE);
+    }
   };
 
   return (
@@ -99,19 +127,23 @@ const SignupForm = ({ register }: any) => {
       <FormInput
         id={"password"}
         name={"password"}
-        type="password"
         label="Mot de passe"
         title="Mot de passe"
         value={form.password}
+        type={pwInput1.type}
+        iconLink={pwInput1.iconPath}
+        tooglePasswordVisibility={() => tooglePassword1Visibility()}
         handleChange={handleChange}
       />
       <FormInput
         id={"confirmPassword"}
         name={"confirmPassword"}
-        type="password"
         label="Confirmer le mot de passe"
         title="Confirmer le mot de passe"
         value={form.confirmPassword}
+        type={pwInput2.type}
+        iconLink={pwInput2.iconPath}
+        tooglePasswordVisibility={() => tooglePassword2Visibility()}
         handleChange={handleChange}
       />
 

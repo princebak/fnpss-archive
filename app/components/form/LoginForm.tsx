@@ -26,13 +26,18 @@ const LoginForm = ({ getUserLastActiveSubscription }: any) => {
   const { currentUser } = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
   const { data: session } = useSession();
-  const actived = useSearchParams().get("actived"); // This is the validation token
+  const actived = useSearchParams().get("actived");
   const [isJustLoggedIn, setIsJustLoggedIn] = useState(false);
   const [form, setForm] = useState(initialValues);
   const [message, setMessage] = useState<AlertMessageClass | undefined | null>(
     null
   );
   const [isLoading, setIsLoading] = useState(false);
+  const PASSWORD_INITIAT_STATE = {
+    type: "password",
+    iconPath: "/images/eye_closed.png",
+  };
+  const [pwInput1, setPwInput1] = useState(PASSWORD_INITIAT_STATE);
 
   useEffect(() => {
     const loadUserLastActiveSubscription = async () => {
@@ -40,7 +45,7 @@ const LoginForm = ({ getUserLastActiveSubscription }: any) => {
       const lastActiveSubscription: any = await getUserLastActiveSubscription(
         user?._id
       );
-  
+
       if (lastActiveSubscription) {
         dispatch(
           updateSubscription(updateSubscription(lastActiveSubscription))
@@ -96,6 +101,17 @@ const LoginForm = ({ getUserLastActiveSubscription }: any) => {
     setForm({ ...form, [e.target.name]: e.target.value });
   };
 
+  const tooglePassword1Visibility = () => {
+    if (pwInput1.type == "password") {
+      setPwInput1({
+        type: "text",
+        iconPath: "/images/eye_opened.png",
+      });
+    } else {
+      setPwInput1(PASSWORD_INITIAT_STATE);
+    }
+  };
+
   return (
     <FormWrapper formLabel="Se connecter" handleSubmit={handleSubmit}>
       {message && (
@@ -104,7 +120,9 @@ const LoginForm = ({ getUserLastActiveSubscription }: any) => {
 
       {actived && (
         <AlertMessage
-          content={"Email validation done with success, you can login now."}
+          content={
+            "L'enregistrement a été effectué avec succès, vous pouvez maintenant vous connecter."
+          }
           color={"alert-success"}
         />
       )}
@@ -120,9 +138,11 @@ const LoginForm = ({ getUserLastActiveSubscription }: any) => {
       <FormInput
         id={"password"}
         name={"password"}
-        type="password"
         label="Mot de passe"
         value={form.password}
+        type={pwInput1.type}
+        iconLink={pwInput1.iconPath}
+        tooglePasswordVisibility={() => tooglePassword1Visibility()}
         handleChange={handleChange}
         required
       />
@@ -136,11 +156,11 @@ const LoginForm = ({ getUserLastActiveSubscription }: any) => {
           isborderTop={true}
           link="/signup"
         />
-        <FooterElement
+        {/*    <FooterElement
           firstText="Mot de passe oublié"
           secondText="réinitialiser le"
           link="/reset-password"
-        />
+        /> */}
       </Footer>
     </FormWrapper>
   );

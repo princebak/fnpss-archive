@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import React, { ChangeEventHandler, FC } from "react";
 
 type InputProps = {
@@ -15,6 +16,10 @@ type InputProps = {
   required?: boolean;
   readonly?: boolean;
   checked?: boolean;
+  iconLink?: string;
+  tooglePasswordVisibility?:
+    | React.MouseEventHandler<HTMLImageElement>
+    | undefined;
   handleChange?: ChangeEventHandler<HTMLInputElement> | undefined;
 };
 
@@ -31,7 +36,9 @@ const FormInput: FC<InputProps> = ({
   required,
   readonly,
   checked,
+  iconLink,
   handleChange,
+  tooglePasswordVisibility,
 }) => {
   if (!placeHolder) {
     switch (type) {
@@ -49,29 +56,55 @@ const FormInput: FC<InputProps> = ({
     }
   }
 
+  let inputTag = (
+    <input
+      type={type}
+      className="form-control"
+      id={id}
+      name={name}
+      aria-describedby={`${name}Help`}
+      value={value ? value : ""}
+      placeholder={placeHolder}
+      title={title}
+      required={required}
+      readOnly={readonly}
+      checked={checked}
+      onChange={handleChange}
+    />
+  );
+
+  if (id == "password" || id == "confirmPassword") {
+    inputTag = (
+      <div className="input-group">
+        {inputTag}
+        <button
+          className="btn btn-outline-secondary"
+          type="button"
+          id="togglePassword"
+        >
+          <i
+            className="bi bi-eye"
+            id="toggleIcon"
+            onClick={tooglePasswordVisibility}
+          >
+            <Image
+              width={20}
+              height={20}
+              alt="eye_closed"
+              src={iconLink ? iconLink : ""}
+            />
+          </i>
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div>
       <label htmlFor={id} className="form-label mb-0">
         {label}
       </label>
-      {component ? (
-        <div>{component}</div>
-      ) : (
-        <input
-          type={type}
-          className="form-control"
-          id={id}
-          name={name}
-          aria-describedby={`${name}Help`}
-          value={value ? value : ""}
-          placeholder={placeHolder}
-          title={title}
-          required={required}
-          readOnly={readonly}
-          checked={checked}
-          onChange={handleChange}
-        />
-      )}
+      {component ? <div>{component}</div> : inputTag}
       {error ? (
         <div id={`${name}Help`} className="form-text text-danger">
           {error}
