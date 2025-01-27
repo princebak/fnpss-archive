@@ -40,29 +40,18 @@ const LoginForm = ({ getUserLastActiveSubscription }: any) => {
   const [pwInput1, setPwInput1] = useState(PASSWORD_INITIAT_STATE);
 
   useEffect(() => {
-    const loadUserLastActiveSubscription = async () => {
-      const user: any = session?.user;
-      const lastActiveSubscription: any = await getUserLastActiveSubscription(
-        user?._id
-      );
-
-      if (lastActiveSubscription) {
-        dispatch(
-          updateSubscription(updateSubscription(lastActiveSubscription))
-        );
-      }
-    };
-
     const loadUserInReduxStore = async () => {
+      console.log("UserNow >> ", { currentUser, sessionUser: session?.user });
       if (isJustLoggedIn) {
         if (
           (!currentUser && session?.user) ||
-          (currentUser && currentUser?.email !== session?.user?.email)
+          (currentUser &&
+            session?.user &&
+            currentUser.email !== session?.user.email)
         ) {
           dispatch(loginSuccess(session?.user));
+          console.log("User in redux Updated !");
         }
-
-        await loadUserLastActiveSubscription();
 
         setIsJustLoggedIn(false);
       }
@@ -81,7 +70,7 @@ const LoginForm = ({ getUserLastActiveSubscription }: any) => {
       redirect: false,
     };
     const res: any = await signIn("credentials", loginForm);
-
+    console.log("Login Resp >> ", res);
     if (res.error) {
       setMessage({ content: res.error, color: "alert-danger" });
 
@@ -94,6 +83,7 @@ const LoginForm = ({ getUserLastActiveSubscription }: any) => {
       setIsJustLoggedIn(true);
 
       router.push("/dashboard");
+      console.log("Redirection to dashboard ");
     }
   };
 

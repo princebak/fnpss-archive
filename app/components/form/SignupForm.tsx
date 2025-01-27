@@ -43,6 +43,8 @@ const SignupForm = ({ register }: any) => {
 
       const res: any = await register(form);
 
+      console.log("Registered user >> ", res)
+
       if (res.error) {
         setMessage({ content: res.error, color: "alert-danger" });
       } else {
